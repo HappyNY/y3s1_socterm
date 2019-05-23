@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <title>Introduce</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body>
+        <h1 id="system-description">System description</h1>
+<h2 id="introduce">Introduce</h2>
+<ul>
+<li>This system supports complicated floating point operations on 3D rendering jobs.</li>
+<li>These are described as simple threads which supports deterministic programs only.</li>
+<li>Memory spaces are like below:
+<ul>
+<li>Readonly constant space(cached)</li>
+<li>Writeonly upload stream</li>
+<li>Local registers</li>
+</ul>
+</li>
+</ul>
+<h2 id="implementation-blueprint">Implementation blueprint</h2>
+<pre><code class="language-verilog"><div>    <span class="hljs-keyword">module</span> System
+        <span class="hljs-comment">// On the same bus lanes</span>
+        <span class="hljs-keyword">module</span> CPU Memory
+        <span class="hljs-keyword">module</span> Processing System
+        <span class="hljs-keyword">module</span> GPU Memory
+        <span class="hljs-keyword">module</span> GPGPU
+            <span class="hljs-keyword">generate</span> n
+                <span class="hljs-keyword">module</span> Core Group
+                    <span class="hljs-keyword">module</span> Instr Cache
+                    <span class="hljs-keyword">module</span> Upload Buffer
+                    <span class="hljs-keyword">module</span> Data feeder <span class="hljs-comment">// read from gmem</span>
+                    <span class="hljs-keyword">module</span> RegBankSFR <span class="hljs-comment">// 16..31</span>
+                    <span class="hljs-keyword">generate</span> n * <span class="hljs-number">16</span>
+                        <span class="hljs-keyword">module</span> RegBank <span class="hljs-comment">// 1..15</span>
+                        <span class="hljs-keyword">module</span> ALU
+                    <span class="hljs-keyword">endgenerate</span>
+                <span class="hljs-keyword">endmodule</span>
+            <span class="hljs-keyword">endgenerate</span>
+                        
+            
+        
+</div></code></pre>
+<h2 id="features">Features</h2>
+<blockquote>
+<p>클럭은 AHB 버스와 동기화시킴!</p>
+</blockquote>
+<ul>
+<li>코어는 반드시 데이터 배열을 나타낸다.
+<ul>
+<li>쓰레드는 반드시 하나의 구조체 영역을 나타낸다.</li>
+<li>즉, 하나의 코어는 16개의 구조체 집합과 같다.</li>
+<li>모든 프로그램은 코어의 시작 주소 지점으로부터, 각 구조체의 오프셋에 대한 상대 주소를 바탕으로 실행된다.</li>
+<li>전자는 Offset, 후자는 Interval.</li>
+<li></li>
+</ul>
+</li>
+<li>병렬 계산
+<ul>
+<li>한 개의 Core가 열 여섯개의 Thread를 관리</li>
+<li>1~15번 레지스터는 지역 레지스터.
+<ul>
+<li>[1~15] &lt;- [1~15] 형태의 오퍼레이션은 지역 레지스터 간 데이터 교환, 산술 연산이 가능</li>
+<li>16~31번 레지스터는 Core가 갖는 공용 레지스터</li>
+<li>[1~15] &lt;- [16~31] 형태의 오퍼레이션은 빠르게 지역 레지스터에 상수를 로드할 수 있게끔 한다.</li>
+<li>[16~31] &lt;- [1~15] 형태의 연산은 정의 x</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>전역 메모리 로드
+<ul>
+<li>[16~31] &lt;- gmem 형태의 연산이 정의된다</li>
+<li>이를 이용, 행렬 등의 데이터를 빠르게 로드 가능</li>
+</ul>
+</li>
+</ul>
+<h2 id="process">Process</h2>
+<ul>
+<li>CPU는 가장 먼저, 실행할 프로그램을 코어의 인스트럭션 캐시에 로드한다. 인스트럭션 캐시의 크기는 4KByte로 제한된다.</li>
+<li>그 뒤, 별도의 포트를 통해 디바이스의 R30을 설정한다
+<ul>
+<li>R30에는 코어의 오프셋과 각 쓰레드(구조체)의 인터벌이 4byte 단위로써 기록된다.</li>
+<li></li>
+</ul>
+</li>
+</ul>
+<h2 id="instrs">Instrs</h2>
+<ul>
+<li><strong>ldc rd, [ra], rb</strong>술
+<ul>
+<li>Load from memory by constant offset</li>
+<li>rd = cmem[(ra+rb/4)*4]</li>
+</ul>
+</li>
+<li><strong>stc  [rd], ra, rb</strong>
+<ul>
+<li>Store to memory by constant offset</li>
+</ul>
+</li>
+<li></li>
+</ul>
+<h2 id="registers">Registers</h2>
+<ul>
+<li>R0
+<ul>
+<li>Hard-wired 0</li>
+</ul>
+</li>
+<li>R1~R14
+<ul>
+<li>32bit general perpose registers</li>
+</ul>
+</li>
+<li>R15
+<ul>
+<li>Hard-wired thread begin address.</li>
+<li><strong>Means a thread is treated as a structure.</strong></li>
+</ul>
+</li>
+<li>R16-R31 (Special function registers(Common per core groups))
+<ul>
+<li>R16~R29:</li>
+<li>R30: Control register
+<ul>
+<li>[7 ..0]  Step, 4 byte in units.</li>
+<li>[31..8] Offset, 4 byte in units.</li>
+</ul>
+</li>
+<li>R31: PC</li>
+</ul>
+</li>
+</ul>
+
+    </body>
+    </html>
