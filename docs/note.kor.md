@@ -2,70 +2,48 @@ Notes
 -----
 
 * Instruction Architecture
-  * [31:29] 
+  * All Instr
     ```
-    VAL   ID  OPS
-    0000  NV  NOP
-    0001  AL
-    0010  EQ
-    0011  NE
-    0100  ....
-    ```  
-  * [28]
-    * Status refresh flag 
-  * [27:22]
-    * OpCodes
-    ```
-     - Integral ops
-    27 26 25:22 ID      OPS
-     0  0  0000 MOV
-           0001 MVN     Move minus
-           0010 ADD
-           0011 SUB
-           0100 ADC
-           0101 SBC     Subtract with carry
-           0110 
-           0111 
-           1000 LSL     Logical shift left
-           1001 LSR
-           1010 ASR     Arithmetic shift right
-           1011 CMP     Compare A == B
-           1100 ADI     Add immediate only
-           1101 SBI     Subtract immediate only 
-           1110 MVI     Load Immediate
-           1111 MVNI    Load Immediate minus
-     
-     - FP ops
-    27 26 25:22 ID      OPS
-     0  1  0000 NOT
-           0001 AND
-           0010 OR
-           0011 XOR
-           0100 
-           0101 
-           0110 
-           0111 
-           1000 FCMP    Compare A == B 
-           1001 FADD
-           1010 FSUB
-           1011 FMUL
-           1100 FDIV
-           1101 FTOI
-           1110 ITOF
-           1111 FINV
-    ```
-  * [21: 0]
-    * Operands
-    ```
-    - CASE A 
-        21:17   16:12   11:5    4:0
-           RD      RB     IM     RA
-    - CASE B
-        21:17   16:12   11:0
-           RD      RB     IM
-    - CASE C
-        21:17   16: 0
-           RD      IM
+    -- CONDITIONS   [3:0]
+    EQ      ZERO FLAG SET 
+    NE      NOT ZERO
+    OV      OVERFLOW
+    NO      NO OVERFLOW
+    CY      CARRY SET
+    NC      CARRY UNSET
+    NE      NEGATIVE(SIGN BIT SET)
+    PO      POSITIVE(SIGN BIT UNSET)
+    
+    -- OPRERANDS    [1:0]
+    REG     REG DST, A, B, IMM0
+    IM1     REG DST, B, IMM1
+    IMA     REG DST, IMMEDIATE ALL
+    IMB     REG A, IMMEIDATE ALL (FOR STORING CONSTANT)
+    
+    -- STATUS REFRESH FLAG
+    S       1 BIT
+    
+    -- ARTIMETICS   [4:0]
+    [4:3] == 2'B11 => NO WRITEBACK
+    0.   MOV    D :=  B
+    1.   INV    D := ~B +    1
+    2.   NOT    D := ~B
+    3.   ADD    D :=  A +    B
+    4.   ADC    D :=  A +    B +    C
+    5.   SBC    D :=  A +   ~B +   ~C
+    6.   LSL    D :=  A <<   B
+    7.   LSR    D :=  A >>   B
+    8.   ASL    D :=  A >>>  B
+    9.   AND    D :=  A &    B  
+    10.  ORR    D :=  A |    B
+    11.  XOR    D :=  A ^    B
+
+    12.  CMP    C :=  A == B
+
+    16.  ITOF   INTEGER TO FLOAT
+    17.  FTOI   FLOAT TO INTEGER
+    18.  FMUL   FLOAT MULTIPLY
+    19.  FDIV   FLOAT 
     ```
 * Speed up clocks
   * 파이프라이닝 도입.
