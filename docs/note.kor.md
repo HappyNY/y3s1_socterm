@@ -1,55 +1,75 @@
 Notes
 -----
 
-* Instruction Architecture
+* Instruction Set Architecture
   * All Instr
     ```
     -- CONDITIONS   [3:0]
-    EQ      ZERO FLAG SET 
-    NE      NOT ZERO
-    OV      OVERFLOW
-    NO      NO OVERFLOW
-    CY      CARRY SET
-    NC      CARRY UNSET
-    NE      NEGATIVE(SIGN BIT SET)
-    PO      POSITIVE(SIGN BIT UNSET)
+    0.  NE      NOT ZERO
+    1.  EQ      ZERO FLAG SET 
+    2.  OV      OVERFLOW
+    3.  CY      CARRY SET
+    4.  NC      CARRY UNSET
+    5.  NE      NEGATIVE(SIGN BIT SET)
+    6.  PO      POSITIVE(SIGN BIT UNSET)
+    7.  AL      ALWAYS ( DEFAULT )
     
-    -- OPRERANDS    [1:0]
-    REG     REG DST, A, B, IMM0
-    IM1     REG DST, B, IMM1
-    IMA     REG DST, IMMEDIATE ALL
-    IMB     REG A, IMMEIDATE ALL (FOR STORING CONSTANT)
-    
-    -- STATUS REFRESH FLAG
+    -- STATUS REFRESH FLAG (Only effective on arithmetic operations)
     S       1 BIT
     
-    -- ARTIMETICS   [4:0]
-    [4:3] == 2'B11 => NO WRITEBACK
-    0.   MOV    D :=  B
-    1.   INV    D := ~B +    1
-    2.   NOT    D := ~B
-    3.   ADD    D :=  A +    B
-    4.   ADC    D :=  A +    B +    C
-    5.   SBC    D :=  A +   ~B +   ~C
-    6.   LSL    D :=  A <<   B
-    7.   LSR    D :=  A >>   B
-    8.   ASL    D :=  A >>>  B
-    9.   AND    D :=  A &    B  
-    10.  ORR    D :=  A |    B
-    11.  XOR    D :=  A ^    B
+    -- OPERAND MODES
+        -  D Destination Reg
+        -  A Register A
+        -  I Immediate
+        -  B Register B
 
-    12.  CMP    C :=  A == B
-
-    16.  ITOF   INTEGER TO FLOAT
-    17.  FTOI   FLOAT TO INTEGER
-    18.  FMUL   FLOAT MULTIPLY
-    19.  FDIV   FLOAT 
+       - MODE 1
+         -  DDDDD AAAAA II_IIIII BBBBB
+         -  Reg A, B, Dst. 
+            -  If Arithmetic opr = B will deleivered as B << I // If negative, LSR, MSB = Arithmetic vs Logical
+            -  If LD/ST -> 
+       - MODE 2
+         -  DDDDD AAAAA II_IIIII_IIIII
+         -  REG A, DST, IMMED[9:0]
+       - MODE 3
+         -  DDDDD II_IIIII_IIIII_IIIII
+         -  REG DST, IMMED[14:0]
+            
+    -- OPRS   [4:0]
+    - M := B << I0
+    VAL  ID     MOD OPR         DESC
+    1.   MOV    1   D := M      CAN BE LSL AT THE SAME TIME
+    2.   MVN    1   D := 'M+1
+    3.   ADC    1   D := A+M+C
+    4.   SBC    1   D := A+'M+'C
+    5.   AND    1   D := A&M
+    6.   ORR    1   D := A|M
+    7.   XOR    1   D := A^M
+    8.   ADI    2   D := A+I
+    9.   SBI    2   D := A-I
+    10.  MVI    3   D := I
+    11.  ITOF   1               INTEGER TO FLOAT
+    12.  FTOI   1               FLOAT TO INTEGER
+    13.  FMUL   1               FLOAT MULTIPLY
+    14.  FDIV   1               FLOAT DIVISION
+    15.  FADD   1               FLOAT ADDITION 
+    16.  FSUB   1               FLOAT SUBTRACTION
+    17.  FNEG   1               FLOAT NEGATION
+    18.  .
+    19.  .
+    20.  LDL    2   D := L[A+I], @todo. Add mux to input address for local memory. 
+    21.  LDC    2   D := G[A+I]
+    22.  LDCI   3   D := G[I]
+    23.  .
+    24.  STL    1   L[B+I] := A
+    25.  
     ```
 * Speed up clocks
   * 파이프라이닝 도입.
   * 데이터 해저드 이슈
   * 레지스터 수 up, 태스크 병렬 실행
   * 즉, 태스크 A B C D에 대하여
+    * 명령어 수준의 병렬성을 부여
     * A0 B0 C0 D0 A1 B1 C1 D1 ...
     * 명령어를 뒤섞는다.
     * 각 태스크에 할당되는 레지스터 = 8개
@@ -67,10 +87,10 @@ Notes
     ```
     * 아래와 같은 꼴로 표현된다
     ```assembly
-        movc r7, 0
-        movc r15, 12
-        movc r23, 24
-        movc r31, 36
+        mvi r7, 0
+        mvi r15, 12
+        mvi r23, 24
+        mvi r31, 36
         ld r0, [r7]
         ld r8, [r15]
         ld r16, [r23]
