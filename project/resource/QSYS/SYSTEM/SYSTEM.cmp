@@ -1,0 +1,24 @@
+	component SYSTEM is
+		port (
+			clk_clk                  : in    std_logic                     := 'X';             -- clk
+			bufferram_out_address    : in    std_logic_vector(16 downto 0) := (others => 'X'); -- address
+			bufferram_out_chipselect : in    std_logic                     := 'X';             -- chipselect
+			bufferram_out_clken      : in    std_logic                     := 'X';             -- clken
+			bufferram_out_write      : in    std_logic                     := 'X';             -- write
+			bufferram_out_readdata   : out   std_logic_vector(15 downto 0);                    -- readdata
+			bufferram_out_writedata  : in    std_logic_vector(15 downto 0) := (others => 'X'); -- writedata
+			bufferram_out_byteenable : in    std_logic_vector(1 downto 0)  := (others => 'X'); -- byteenable
+			buffram_clk_clk          : in    std_logic                     := 'X';             -- clk
+			bufferram_rst_reset      : in    std_logic                     := 'X';             -- reset
+			sdram_wire_addr          : out   std_logic_vector(12 downto 0);                    -- addr
+			sdram_wire_ba            : out   std_logic_vector(1 downto 0);                     -- ba
+			sdram_wire_cas_n         : out   std_logic;                                        -- cas_n
+			sdram_wire_cke           : out   std_logic;                                        -- cke
+			sdram_wire_cs_n          : out   std_logic;                                        -- cs_n
+			sdram_wire_dq            : inout std_logic_vector(31 downto 0) := (others => 'X'); -- dq
+			sdram_wire_dqm           : out   std_logic_vector(3 downto 0);                     -- dqm
+			sdram_wire_ras_n         : out   std_logic;                                        -- ras_n
+			sdram_wire_we_n          : out   std_logic                                         -- we_n
+		);
+	end component SYSTEM;
+
