@@ -17,16 +17,7 @@ module TOP
 	DRAM_DQ,
 	DRAM_DQM,
 	DRAM_RAS_N,
-	DRAM_WE_N,
-
-	//////////// SRAM //////////
-	// SRAM_ADDR,
-	// SRAM_CE_N,
-	// SRAM_DQ,
-	// SRAM_LB_N,
-	// SRAM_OE_N,
-	// SRAM_UB_N,
-	// SRAM_WE_N
+	DRAM_WE_N, 
 );
     // ------ PORTS
     input               CLK;
@@ -44,15 +35,7 @@ module TOP
     inout  [31:0]		DRAM_DQ;    
     output [3:0]		DRAM_DQM;   
     output              DRAM_RAS_N; 
-    output              DRAM_WE_N;  
-    
-    // output [19:0]       SRAM_ADDR;
-    // output              SRAM_CE_N;
-    // inout  [15:0]       SRAM_DQ;
-    // output              SRAM_LB_N;
-    // output              SRAM_OE_N;
-    // output              SRAM_UB_N;
-    // output              SRAM_WE_N;
+    output              DRAM_WE_N;   
     
     // ------ local
     wire iCLK50MHz = CLK;
@@ -75,15 +58,7 @@ module TOP
     wire        tft_vsync;
     wire        tft_de;
     wire        bufferram_rst_reset = 0;
-    wire        buffram_clk_clk = bram_clk;
-    
-    // wire [15:0] pixel_buffer_DQ;
-    // wire [19:0] pixel_buffer_ADDR;
-    // wire        pixel_buffer_LB_N;
-    // wire        pixel_buffer_UB_N;
-    // wire        pixel_buffer_CE_N;
-    // wire        pixel_buffer_OE_N;
-    // wire        pixel_buffer_WE_N;
+    wire        buffram_clk_clk = bram_clk; 
     
     wire [12:0] sdram_wire_addr;
     wire [1:0]  sdram_wire_ba;
@@ -96,28 +71,20 @@ module TOP
     wire        sdram_wire_we_n;
     
     wire [16:0] buff_addr = ((tft_vaddr>>1) * 400) + (tft_haddr>>1);
-    // ------ regs
-    reg  [16:0] addr_vpivot;
+    // ------ regs 
     
     // ------ logic
     SYSTEM SYSTEM_inst(
         .bufferram_out_address(buff_addr),
         .bufferram_out_chipselect(bufferram_out_chipselect), 
         .bufferram_out_clken(1),       
-        .bufferram_out_write(1),       
+        .bufferram_out_write(/*MUST SET 0 LATER*/1),       
         .bufferram_out_readdata(bufferram_out_readdata),   
-        .bufferram_out_writedata(buff_addr),    
+        .bufferram_out_writedata(/*MUST SET 0 LATER*/buff_addr),    
         .bufferram_out_byteenable(2'b11), 
 		.bufferram_rst_reset(bufferram_rst_reset),      
 		.buffram_clk_clk(buffram_clk_clk),          
-        .clk_clk(iCLK50MHz),        
-		// .pixel_buffer_DQ(),         
-		// .pixel_buffer_ADDR(),       
-		// .pixel_buffer_LB_N(),       
-		// .pixel_buffer_UB_N(),       
-		// .pixel_buffer_CE_N(),       
-		// .pixel_buffer_OE_N(),       
-		// .pixel_buffer_WE_N(),       
+        .clk_clk(iCLK50MHz),         
 		.sdram_wire_addr(DRAM_ADDR),       
 		.sdram_wire_ba(DRAM_BA),           
 		.sdram_wire_cas_n(DRAM_CAS_N),     
@@ -140,17 +107,7 @@ module TOP
         rgb16[15:12], {4{rgb16[11]}}, 
         rgb16[10: 6], {3{rgb16[ 5]}}, 
         rgb16[ 4: 1], {4{rgb16[ 0]}}
-    };
-    
-    // Assemble address
-    // always @( posedge bram_clk ) begin
-    //     addr_vpivot <= 
-    //         tft_vaddr == 0
-    //         ? 0
-    //         : tft_vaddr[0] && tft_haddr == 799
-    //             ? addr_vpivot + 400
-    //             : addr_vpivot;
-    // end
+    }; 
     
     LCD LCD_inst
     (
