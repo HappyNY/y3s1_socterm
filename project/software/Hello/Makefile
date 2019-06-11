@@ -143,7 +143,9 @@ ELF := Hello.elf
 
 # Paths to C, C++, and assembly source files.
 C_SRCS :=
-CXX_SRCS := hello_world.cpp
+CXX_SRCS += src/cgrom.cpp
+CXX_SRCS += hello_world.cpp
+CXX_SRCS += src/chout.cpp
 ASM_SRCS :=
 
 

@@ -19,8 +19,10 @@
 #include <system.h>
 #include <stdlib.h>
 #include <cstring>
+#include "src/chout.hpp"
 
-#define LPDISPLAY ((volatile alt_u32*)BUFFERRAM_OUT_BASE)
+#define LPDISPLAY ((volatile uint32_t*)BUFFERRAM_OUT_BASE)
+
 void wait(int val)
 {
 	for(int i =0; i < val; ++i)
@@ -33,19 +35,35 @@ int main()
 {
 	printf("Hello from Nios II! ... Launching ... \n");
 
-	int col = 0;
-
 	memset((void*)LPDISPLAY, 0, 48000*sizeof(alt_u32));
+	skConsole Console(400, 240);
 	while(1)
 	{
-		// LPDISPLAY[col%48000] = col;
-		col = ++col == 48000 ? 0 : col;
-		if(LPDISPLAY[col] != 0)
+		printf("Enter any.\n");
+		char buff[1024];
+		gets(buff);
+		Console.Write(buff);
+		Console.Print(LPDISPLAY);
+		
+		// col = 0;
+		// while(col < 48000)
+		// {
+		// 	LPDISPLAY[col] = ((col << 16) | col);
+		// 	++col;
+		// }
+		/*
+		for(int i = 0; i < 240; ++i)
 		{
-			printf("active addr: %08x: val.%08x\n", col, LPDISPLAY[col]);
-			LPDISPLAY[col] =
-			wait(500000);
+			int addr = i * 200;
+			for(int j = 0; j < 200; ++j, ++addr)
+			{
+				if(i < 40)
+				{
+
+				}
+			}
 		}
+		*/
 	}
 	printf("done.\n");
 	while(1);
