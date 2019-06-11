@@ -70,17 +70,18 @@ module TOP
     wire        sdram_wire_ras_n;
     wire        sdram_wire_we_n;
     
-    wire [16:0] buff_addr = ((tft_vaddr>>1) * 400) + (tft_haddr>>1);
+    wire [16:0] buff_addr = ((tft_vaddr>>1) * 400) + (tft_haddr>>1); 
     // ------ regs 
+    reg[16:0] buff_pvt;
     
     // ------ logic
     SYSTEM SYSTEM_inst(
         .bufferram_out_address(buff_addr),
         .bufferram_out_chipselect(bufferram_out_chipselect), 
         .bufferram_out_clken(1),       
-        .bufferram_out_write(/*MUST SET 0 LATER*/1),       
+        .bufferram_out_write(/*MUST SET 0 LATER*/0),       
         .bufferram_out_readdata(bufferram_out_readdata),   
-        .bufferram_out_writedata(/*MUST SET 0 LATER*/buff_addr),    
+        .bufferram_out_writedata(/*MUST SET 0 LATER*/0),//buff_addr),    
         .bufferram_out_byteenable(2'b11), 
 		.bufferram_rst_reset(bufferram_rst_reset),      
 		.buffram_clk_clk(buffram_clk_clk),          
@@ -96,6 +97,7 @@ module TOP
 		.sdram_wire_we_n(DRAM_WE_N)        
     );
     
+    // Phase shift by 3 ns
     SDRAM_PLL (
 	    iCLK50MHz,
 	    DRAM_CLK
@@ -108,6 +110,15 @@ module TOP
         rgb16[10: 6], {3{rgb16[ 5]}}, 
         rgb16[ 4: 1], {4{rgb16[ 0]}}
     }; 
+    
+    // Assemble address
+    // assign buff_addr = (tft_haddr>>1) + buff_pvt;
+    // always @(negedge tft_vaddr[0] or posedge tft_vsync) begin 
+    //     if(tft_vsync)
+    //         buff_pvt = 0;
+    //     else
+    //         buff_pvt <= buff_pvt + 400;     
+    // end
     
     LCD LCD_inst
     (
@@ -122,7 +133,7 @@ module TOP
         .oADDR(bufferram_out_address),
         .oLCDRGB(LCDRGB),            // to LCD device output
         .oLCDCON(LCDCON[13:3]),
-        .oDE(),
+        .oDE(tft_de),
         .oHSYNC(tft_hsync),
         .oVSYNC(tft_vsync)
     ); 

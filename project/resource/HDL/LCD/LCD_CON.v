@@ -74,7 +74,7 @@ module LCD_CON#
     reg oHSYNC;
     reg oVSYNC;
     // reg oDE;
-    reg oBRAM_CLK;
+    // reg oBRAM_CLK;
     
     reg[HDBW-1:0] oHADDR;
     reg[VDBW-1:0] oVADDR;
@@ -90,10 +90,10 @@ module LCD_CON#
     assign onRST = inRST;
     
     assign oDCLK = iCLK;
-    // assign oBRAM_CLK = oDE & oDCLK;
+    assign oBRAM_CLK = oDE & oDCLK;
     
     // Logics
-    always @(oDCLK) oBRAM_CLK <= oDE;
+    // always @(oDCLK) oBRAM_CLK <= oDE;
     
     // State counter
     always @(posedge iCLK or negedge inRST) begin
@@ -112,8 +112,8 @@ module LCD_CON#
 
     // Address assignment
     always @(posedge oDCLK) begin
-        oHADDR <= oDE ? hcnt - THPW - THB : 0;
-        oVADDR <= oDE ? vcnt - TVPW - TVB : 0;
+        oHADDR <=   oDE ? hcnt - THPW - THB : 0;
+        oVADDR <=   oDE ? vcnt - TVPW - TVB : 0;
         oADDR  <=   ~oVSYNC 
                     ? 0 
                     : oDE 
