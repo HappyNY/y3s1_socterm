@@ -6,6 +6,7 @@ module GPPCU_CORE #
 )
 (
     iACLK,          // Instruction should be valid on ACLK's rising edge.
+    inRST,
     iINSTR,
     iINSTR_VALID,
     oINSTR_READY,   // Replaces instruction address. 
@@ -29,6 +30,7 @@ module GPPCU_CORE #
     
     /// ports
     input                   iACLK;
+    input                   inRST;
     input   [DBW-1:0]       iINSTR;
     input                   iINSTR_VALID;
     output                  oINSTR_READY; // Replaces instruction address. 
