@@ -9,7 +9,9 @@ module GPPCU_STALL_GEN #
     iREGD,
     iREGA,
     iREGB,
-    iVALID,
+    iVALID_REGD,
+    iVALID_REGA,
+    iVALID_REGB,
     oENABLED,
     
     iWRREG,
@@ -21,7 +23,9 @@ module GPPCU_STALL_GEN #
     input                   iREGD;
     input   [NUMREG-1:0]    iREGA;
     input   [NUMREG-1:0]    iREGB;
-    input                   iVALID;
+    input                   iVALID_REGD;
+    input                   iVALID_REGA;
+    input                   iVALID_REGB;
     output                  oENABLED;
     
     input   [NUMREG-1:0]    iWRREG;
@@ -37,7 +41,7 @@ module GPPCU_STALL_GEN #
         genvar i;
         for(i = 0; i < NUMREG; i = i + 1) begin : SELECT
             wire outsig = ~iWRREG_VALID | (i == iWRREG);
-            wire insig  = oENABLED && iVALID && i == iREGD; 
+            wire insig  = oENABLED && iVALID_REGD && i == iREGD; 
             always @(posedge iACLK) begin
                 if(~inRST)
                     occupied[i] = 0;
@@ -45,8 +49,15 @@ module GPPCU_STALL_GEN #
                     occupied[i] = (occupied[i] & outsig) | insig; 
             end
             
-            assign rq_mask_a[i] = i == iREGA;
-            assign rq_mask_b[i] = i == iREGB;
+            assign rq_mask_a[i] = (i == iREGA) & iVALID_REGA;
+            assign rq_mask_b[i] = (i == iREGB) & iVALID_REGB;
         end
     endgenerate
+endmodule
+
+//
+// Testbench
+module GPPCU_STALL_GEN_testbench;
+    
+    
 endmodule
