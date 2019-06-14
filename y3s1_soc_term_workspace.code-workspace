@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "project\\software"
+		},
+		{
+			"path": "docs"
 		}
 	],
 	"settings": {}
