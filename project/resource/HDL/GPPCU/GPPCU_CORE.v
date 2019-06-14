@@ -2,7 +2,7 @@
 module GPPCU_CORE #
 (
     parameter
-    NUM_THREAD = 1 /*32, Debug option for temporary*/
+    NUM_THREAD = 32 /*32, Debug option for temporary*/
 )
 (
     iACLK,          // Instruction should be valid on ACLK's rising edge.

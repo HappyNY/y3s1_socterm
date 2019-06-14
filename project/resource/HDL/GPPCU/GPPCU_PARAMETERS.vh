@@ -12,6 +12,7 @@
         INSTR_REGB_5    =  0,
         INSTR_REGA_5    = 12,
         INSTR_REGD_5    = 17,
+        INSTR_S         = 22,
         INSTR_OPR_5     = 23,
         INSTR_COND_4    = 28
     ;
