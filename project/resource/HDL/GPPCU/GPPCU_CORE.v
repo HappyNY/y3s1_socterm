@@ -33,6 +33,7 @@ module GPPCU_CORE #
     input                   iINSTR_VALID;
     output                  oINSTR_READY; // Replaces instruction address. 
     
+	input                   iLMEM_CLK;
     input   [TBW-1:0]       iLMEM_THREAD_SEL; // Thread selection input
     input   [ABW-1:0]       iLMEM_ADDR;
     input   [DBW-1:0]       iLMEM_WDATA;

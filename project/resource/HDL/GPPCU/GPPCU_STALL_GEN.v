@@ -17,18 +17,21 @@ module GPPCU_STALL_GEN #
     iWRREG,
     iWRREG_VALID
 );
+    `include "bit_fit.vh"
+    localparam ABW = bit_fit(NUMREG);
+    
     // ports
     input                   iACLK;
     input                   inRST;
     input                   iREGD;
-    input   [NUMREG-1:0]    iREGA;
-    input   [NUMREG-1:0]    iREGB;
+    input   [ABW-1:0]       iREGA;
+    input   [ABW-1:0]       iREGB;
     input                   iVALID_REGD;
     input                   iVALID_REGA;
     input                   iVALID_REGB;
     output                  oENABLED;
     
-    input   [NUMREG-1:0]    iWRREG;
+    input   [ABW-1:0]       iWRREG;
     input                   iWRREG_VALID;
     
     // regs

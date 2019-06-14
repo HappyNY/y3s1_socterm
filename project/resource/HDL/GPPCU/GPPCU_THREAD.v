@@ -32,7 +32,7 @@ module GPPCU_THREAD (
     
     input   [DBW-1:0]       iINSTR_FCH;
     input   [DBW-1:0]       iINSTR_DEC;
-    input   [DBW-1:0]       iINSTR_EXE;
+    input   [DBW-1:0]       iINSTR_EXEC;
     input   [DBW-1:0]       iINSTR_WB;
     
     input                   iLMEMCLK;
@@ -43,6 +43,18 @@ module GPPCU_THREAD (
     input   [DBW-1:0]       iLMEMWDATA;
     input   [DBW-1:0]       iGMEMDATA;
     
-    // pipeline regs
+    output                  oBUSY;
+    
+    // Register bank
+    GPPCU_THREAD_REGBANK GPPCU_THREAD_REGBANK_inst(
+        .iACLK(iACLK),
+        .iREGASEL(),
+        .iREGBSEL(),
+        .iREGDSEL(), // FROM PIPE_WRBK
+        .oREGA(),
+        .oREGB(),
+        .iREGD(),
+        .iWR()
+    );
     
 endmodule
