@@ -4,363 +4,135 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "LCDRGB[0]",
+					"name" : "oGMEM_ADDR[0]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[1]",
+					"name" : "oGMEM_ADDR[1]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[2]",
+					"name" : "oGMEM_ADDR[2]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[3]",
+					"name" : "oGMEM_ADDR[3]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[4]",
+					"name" : "oGMEM_ADDR[4]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[5]",
+					"name" : "oGMEM_ADDR[5]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[6]",
+					"name" : "oGMEM_ADDR[6]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[7]",
+					"name" : "oGMEM_ADDR[7]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[8]",
+					"name" : "oGMEM_ADDR[8]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[9]",
+					"name" : "oGMEM_ADDR[9]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[10]",
+					"name" : "oGMEM_ADDR[10]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[11]",
+					"name" : "oGMEM_ADDR[11]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[12]",
+					"name" : "oGMEM_ADDR[12]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[13]",
+					"name" : "oGMEM_ADDR[13]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[14]",
+					"name" : "oGMEM_ADDR[14]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[15]",
+					"name" : "oGMEM_ADDR[15]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[16]",
+					"name" : "iINSTR[0]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[17]",
+					"name" : "iACLK",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[18]",
+					"name" : "iINSTR[1]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[19]",
+					"name" : "iINSTR[2]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[20]",
+					"name" : "iINSTR[3]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[21]",
+					"name" : "iINSTR[4]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[22]",
+					"name" : "iINSTR[5]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDRGB[23]",
+					"name" : "iINSTR[6]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDCON[3]",
+					"name" : "iINSTR[7]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDCON[6]",
+					"name" : "iINSTR[8]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDCON[9]",
+					"name" : "iINSTR[9]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDCON[12]",
+					"name" : "iINSTR[10]",
 					"strict" : false
 				},
 				{
-					"name" : "LCDCON[13]",
+					"name" : "iINSTR[11]",
 					"strict" : false
 				},
 				{
-					"name" : "DRAM_ADDR[0]",
+					"name" : "iINSTR[12]",
 					"strict" : false
 				},
 				{
-					"name" : "DRAM_ADDR[1]",
+					"name" : "iINSTR[13]",
 					"strict" : false
 				},
 				{
-					"name" : "DRAM_ADDR[2]",
+					"name" : "iINSTR[14]",
 					"strict" : false
 				},
 				{
-					"name" : "DRAM_ADDR[3]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[4]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[5]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[6]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[7]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[8]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[9]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[10]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[11]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_ADDR[12]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_BA[0]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_BA[1]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_CAS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_CS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQM[0]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQM[1]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQM[2]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQM[3]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_RAS_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_WE_N",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[0]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[1]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[2]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[3]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[4]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[5]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[6]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[7]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[8]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[9]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[10]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[11]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[12]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[13]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[14]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[15]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[16]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[17]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[18]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[19]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[20]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[21]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[22]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[23]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[24]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[25]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[26]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[27]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[28]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[29]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[30]",
-					"strict" : false
-				},
-				{
-					"name" : "DRAM_DQ[31]",
-					"strict" : false
-				},
-				{
-					"name" : "PB[0]",
-					"strict" : false
-				},
-				{
-					"name" : "CLK",
-					"strict" : false
-				},
-				{
-					"name" : "altera_reserved_tms",
-					"strict" : false
-				},
-				{
-					"name" : "altera_reserved_tck",
-					"strict" : false
-				},
-				{
-					"name" : "altera_reserved_tdi",
-					"strict" : false
-				},
-				{
-					"name" : "altera_reserved_tdo",
+					"name" : "iINSTR[15]",
 					"strict" : false
 				}
 			]
