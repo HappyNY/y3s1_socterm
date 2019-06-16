@@ -1,0 +1,28 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\resource\GENERATED\GPPCU_MC_FPU.qsys --block-symbol-file --output-directory=D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\resource\GENERATED\GPPCU_MC_FPU --family="Cyclone IV E" --part=EP4CE115F29C7
+Progress: Loading GENERATED/GPPCU_MC_FPU.qsys
+Progress: Reading input file
+Progress: Adding nios_custom_instr_floating_point_2_multi_0 [altera_nios_custom_instr_floating_point_2_multi 18.0]
+Progress: Parameterizing module nios_custom_instr_floating_point_2_multi_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\resource\GENERATED\GPPCU_MC_FPU.qsys --synthesis=VERILOG --output-directory=D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\resource\GENERATED\GPPCU_MC_FPU\synthesis --family="Cyclone IV E" --part=EP4CE115F29C7
+Progress: Loading GENERATED/GPPCU_MC_FPU.qsys
+Progress: Reading input file
+Progress: Adding nios_custom_instr_floating_point_2_multi_0 [altera_nios_custom_instr_floating_point_2_multi 18.0]
+Progress: Parameterizing module nios_custom_instr_floating_point_2_multi_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: GPPCU_MC_FPU: Generating GPPCU_MC_FPU "GPPCU_MC_FPU" for QUARTUS_SYNTH
+Info: nios_custom_instr_floating_point_2_multi_0: "GPPCU_MC_FPU" instantiated altera_nios_custom_instr_floating_point_2_multi "nios_custom_instr_floating_point_2_multi_0"
+Info: GPPCU_MC_FPU: Done "GPPCU_MC_FPU" with 2 modules, 15 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

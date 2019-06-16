@@ -39,3 +39,53 @@
         CW_USEREGB      = 18, 
         CW_BITS         = 19
     ;
+     
+    // localparam.. instr mappings
+    localparam[4:0]
+        NOP     =  0, 
+        MOV     =  1,
+        MVN     =  2,
+        ADC     =  3,
+        SBC     =  4,
+        AND     =  5,
+        ORR     =  6,
+        XOR     =  7,
+        ADI     =  8,
+        SBI     =  9,
+        MVI     = 10,
+        LSL     = 11,
+        LSR     = 12,
+        ASR     = 13,
+        ITOF    = 14,
+        FTOI    = 15,
+        FMUL    = 16,
+        FDIV    = 17,
+        FADD    = 18,
+        FSUB    = 19,
+        FNEG    = 20,
+        FSQRT   = 21, 
+        LDL     = 22,
+        LDCI    = 23,
+        STL     = 24
+    ; 
+    
+    // SREG indices
+    localparam
+        SREG_VCNZ = 0,
+        SREG_V = 0,
+        SREG_C = 1,
+        SREG_N = 2,
+        SREG_Z = 3,
+        SREG_RESERVED = 4
+    ;
+    
+    localparam[2:0]
+        ALT_FPU_FTOI = 3'B001,
+        ALT_FPU_ITOF = 3'B010,
+        ALT_FPU_SQRT = 3'B011,
+        ALT_FPU_MUL  = 3'B100,
+        ALT_FPU_DIV  = 3'B111,
+        ALT_FPU_SUB  = 3'B110,
+        ALT_FPU_ADD  = 3'B101
+    ;
+        

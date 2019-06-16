@@ -109,15 +109,73 @@ module GPPCU_THREAD (
     ); 
     
     // -- Execution stage
-    wire [4:0]  exec_s;
+    reg  [ 4:0] wrbk_sreg;
+    reg  [31:0] exec_alu_q, exec_fpu_q;
+    reg  [ 4:0] exec_alu_sreg, exec_fpu_sreg;
+    wire        exec_operation_valid; // Use wrbk_sreg to judge validity.
     // +exec_opr_valid
     // @todo. Add ALU, FPU, Condition verifier
+    reg  [31:0] alu_q, fpu_q;
+    reg  [ 4:0] alu_sreg, fpu_sreg;
+    
+    // Unconditionally load to platform.
+    // Processings related to pipeline stall only depends on 'valid' bit,
+    //which is managed from outside of this module.
+    always @(posedge iACLK) begin
+        exec_alu_q <= alu_q;
+        exec_fpu_q <= fpu_q;
+        exec_alu_sreg <= alu_sreg;
+        exec_fpu_sreg <= fpu_sreg;
+    end
+    
+    // Single-cycle operation.
+    GPPCU_ALU #( 
+        .BW(32)
+    ) GPPCU_ALU_inst
+    (
+        .iA(exec_oprand_a),
+        .iB(exec_oprand_b),
+        .iC(wrbk_sreg[SREG_C]),
+        .iOP(iCW_EXEC[CW_ALOPC0+:4]),
+        
+        .oVCNZ(alu_sreg),
+        .oQ(alu_q)
+    );
+    
+    // -- FPU Drive logic
+    reg         fp_busy;
+    reg         fp_start;
+    wire        fp_done;
+    reg[2:0]    fp_stage;
+    localparam [2:0]
+        FP_IDLE     = 0, 
+        FP_BUSY     = 1,
+        FP_DONE     = 2
+    ;
+    
+    // @todo. Composite state machine which drives this fpu module
+    assign oBUSY <= fp_busy;
+    GPPCU_MC_FPU GPPCU_MC_FPU_inst(
+        .clk(iACLK),
+        .clk_en(1'b1),
+        .dataa(exec_oprand_a),
+        .datab(exec_oprand_b),
+        .n(iCW_EXEC[CW_FPOPC0+:3]),
+        .reset(0),
+        .reset_req(0),
+        .start(),
+        .done(),
+        .result()
+    );
+
+    // Platform dependent module.
+    // Uses altera's multicycled floating point unit.
+    // To adopt multistage FPU on it, core should also be modified.
     
     // -- Writeback platform reg
-    reg [31:0]  wrbk_q; 
+    wire [31:0]  wrbk_q;
     // wire [31:0] wrbk_alu_q, wrbk_fpu_q ... delay mux to next pipeline, to reduce thruput...
-    reg [ 4:0]  wrbk_sreg;
-    reg         wrbk_opr_valid;
+    reg          wrbk_operation_valid; 
     
     // logics
     always @(posedge iACLK) begin
