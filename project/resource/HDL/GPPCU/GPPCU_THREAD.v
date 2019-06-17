@@ -184,6 +184,7 @@ module GPPCU_THREAD (
     // To adopt multistage FPU on it, core should also be modified.
     // @Composite state machine which drives this fpu module
     assign oBUSY = fp_busy;
+    //**//* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
     GPPCU_MC_FPU GPPCU_MC_FPU_inst(
         .clk(iACLK),
         .clk_en(1'b1),
@@ -195,7 +196,7 @@ module GPPCU_THREAD (
         .start(fp_start),
         .done(fp_done),
         .result(fpu_q)
-    );
+    ); //*/
     
     // -- Writeback platform reg
     wire [31:0]  wrbk_q;
