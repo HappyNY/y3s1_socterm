@@ -148,7 +148,7 @@ module GPPCU_CORE #
                 .iLMEMWREN(iLMEM_WR),
                 .iLMEMADDR(iLMEM_ADDR),
                 .oLMEMRDATA(lmem_out_data_mux[idx_thread]),
-                .iLMEMWDATA(iLMEMWDATA),
+                .iLMEMWDATA(iLMEM_WDATA),
                 
                 .iGMEMDATA(iGMEM_WDATA),
                 
