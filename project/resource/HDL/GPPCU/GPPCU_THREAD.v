@@ -51,8 +51,8 @@ module GPPCU_THREAD (
     wire cw_valid_wb    = iCW_WB  [0];
     
     // uses pending sreg 
-    wire exec_opr_valid;
-    reg  wrbk_operation_valid; 
+    wire exec_cond_verified;
+    reg  wrbk_cond_verified; 
     
     // -- Register bank
     wire [31:0] dec_reg_a, dec_reg_b;
@@ -66,7 +66,7 @@ module GPPCU_THREAD (
         .oREGA(dec_reg_a),
         .oREGB(dec_reg_b),
         .iREGD(wrbk_reg_d),
-        .iWR(cw_valid_wb & iCW_WB[CW_REGWR] & wrbk_operation_valid)
+        .iWR(cw_valid_wb & iCW_WB[CW_REGWR] & wrbk_cond_verified)
     );
     
     // -- Operand B Mux
@@ -104,7 +104,7 @@ module GPPCU_THREAD (
         // For internal use
         .iPB_CLK(iACLK),
         .iPB_ADDR(exec_oprand_b),
-        .iPB_WR(cw_valid_exec & iCW_EXEC[CW_LMEM_WR] & exec_opr_valid), 
+        .iPB_WR(cw_valid_exec & iCW_EXEC[CW_LMEM_WR] & exec_cond_verified), 
         .iPB_WDATA(exec_oprand_a),
         .oPB_RDATA(wrbk_locmem_dat)
     ); 
@@ -113,7 +113,7 @@ module GPPCU_THREAD (
     reg  [ 4:0] wrbk_sreg;
     reg  [31:0] wrbk_alu_q, wrbk_fpu_q;
     reg  [ 4:0] wrbk_alu_sreg, wrbk_fpu_sreg; 
-    // wire        exec_opr_valid; // Use wrbk_sreg to judge validity. Declared in upper scope
+    // wire        exec_cond_verified; // Use wrbk_sreg to judge validity. Declared in upper scope
     wire [31:0] alu_q, fpu_q;
     wire [ 4:0] alu_sreg, fpu_sreg;
     assign fpu_sreg = 0; // No valid status register.
@@ -152,6 +152,9 @@ module GPPCU_THREAD (
         FP_BUSY     = 2,
         FP_DONE     = 3
     ;
+    
+    // @todo. Condtiion verifier logic
+    // @ Generates enable/disable signal 
     
     // Stall signal resolves automatically when the stage arrives DONE.
     assign fp_busy = fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
@@ -198,14 +201,14 @@ module GPPCU_THREAD (
     wire [31:0]  wrbk_q;
     wire [ 4:0]  wrbk_pending_sreg; // @todo. mux sreg with 
     // wire [31:0] wrbk_alu_q, wrbk_fpu_q ... delay mux to next pipeline, to reduce thruput...
-    
     assign wrbk_q               = iCW_WB[CW_FPOP] ? wrbk_fpu_q : wrbk_alu_q;
     assign wrbk_pending_sreg    = iCW_WB[CW_FPOP] ? wrbk_fpu_sreg : wrbk_alu_sreg;
+    assign wrbk_reg_d           = iCW_WB[CW_LMEM_RD] ? wrbk_locmem_dat : wrbk_q;
     
     // logics
     always @(posedge iACLK) begin
-        wrbk_operation_valid <= exec_opr_valid;
-        wrbk_sreg            <= iINSTR_WB[INSTR_S] ? wrbk_pending_sreg : wrbk_sreg;
+        wrbk_cond_verified      <= exec_cond_verified;
+        wrbk_sreg               <= iINSTR_WB[INSTR_S] & wrbk_cond_verified ? wrbk_pending_sreg : wrbk_sreg;
     end
-    assign wrbk_reg_d    = iCW_WB[CW_LMEM_RD] ? wrbk_locmem_dat : wrbk_q;
+    
 endmodule
