@@ -84,6 +84,7 @@ module GPPCU_THREAD (
     
     // -- Execute platform reg
     reg [31:0]  exec_oprand_a, exec_oprand_b;
+    wire        exec_hold_operands;
     always @(posedge iACLK) exec_oprand_a   <= dec_reg_a;
     always @(posedge iACLK) exec_oprand_b   <= dec_opr_b_mux; 
     
@@ -150,6 +151,7 @@ module GPPCU_THREAD (
     reg         fp_start;
     wire        fp_done;
     reg[1:0]    fp_stage = 0;
+    reg[31:0]   fpu_da, fpu_db;
     localparam [1:0]
         FP_IDLE     = 0, 
         FP_RUN      = 1,
@@ -167,47 +169,53 @@ module GPPCU_THREAD (
     
     // Stall signal resolves automatically when the stage arrives DONE.
     assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
-    
+    assign exec_hold_operands = fp_stage != FP_IDLE;
     // No reset logic. Always wait for calculation done
-    always @(posedge iACLK) case(fp_stage)
-        FP_IDLE: begin
-            fp_stage <= iCW_EXEC[CW_FPOP] ? FP_RUN : FP_IDLE;
-            fp_start <= iCW_EXEC[CW_FPOP];
-        end 
-        FP_RUN: begin
-            fp_stage <= FP_BUSY;
-            fp_start <= 1'b0;
-        end
-        FP_BUSY: begin
-            fp_stage <= fp_done ? FP_DONE : FP_BUSY;
-        end
-        FP_DONE: begin
-            fp_stage <= FP_IDLE;
-            fp_start <= 1'b0;
-            wrbk_fpu_q <= fpu_q;
-        end
-    endcase
-    
+    always @(posedge iACLK) 
+    if(~inRST)
+        fp_stage <= 0;
+    else begin
+        case(fp_stage)
+            FP_IDLE: begin
+                fp_stage    <= cw_valid_exec & iCW_EXEC[CW_FPOP] ? FP_RUN : FP_IDLE;
+                fpu_da      <= exec_oprand_a;
+                fpu_db      <= exec_oprand_b;
+            end 
+            FP_RUN: begin
+                fp_stage    <= FP_BUSY; 
+                fp_start    <= 1'b1;
+            end
+            FP_BUSY: begin
+                fp_stage    <= fp_done ? FP_DONE : FP_BUSY;
+                wrbk_fpu_q  <= fp_done ? fpu_q   : wrbk_fpu_q ;
+                fp_start    <= 1'b0;
+            end
+            FP_DONE: begin
+                fp_stage    <= FP_IDLE;
+                fp_start    <= 1'b0;
+            end
+        endcase
+    end
     // Platform dependent module.
     // Uses altera's multicycled floating point unit.
     // To adopt multistage FPU on it, core should also be modified.
     // @Composite state machine which drives this fpu module
     assign oBUSY = fp_busy;
-    /* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
+    //* ##NOTICE## DISABLE UNTIL THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
     GPPCU_MC_FPU GPPCU_MC_FPU_inst(
         .clk        (iACLK),
         .clk_en     (1'b1),
-        .dataa      (exec_oprand_a),
-        .datab      (exec_oprand_b),
+        .dataa      (fpu_da),
+        .datab      (fpu_db),
         .n          (iCW_EXEC[CW_FPOPC0+:3]),
         .reset      (0),
         .reset_req  (0),
         .start      (fp_start),
         .done       (fp_done),
         .result     (fpu_q)
-    ); / */
+    ); /*/
     assign fp_done = 1;
-    //*/
+    // */
     
     // -- Writeback platform reg
     wire [31:0]  wrbk_q; 

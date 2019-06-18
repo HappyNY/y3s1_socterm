@@ -2,7 +2,7 @@
 module GPPCU_CORE #
 (
     parameter
-    NUM_THREAD = 32 /*32, Debug option for temporary*/
+    NUM_THREAD = 16
 )
 (
     iACLK               ,          // Instruction should be valid on ACLK's rising edge.
@@ -250,11 +250,16 @@ module GPPCU_CORE_testbench;
             step = step + 1;
     end
     always @(*) case(step)
-        0   : iINSTR <= {COND_ALWAYS,   LDCI,   1'b0,   5'd0,   17'd10 };
-        1   : iINSTR <= {COND_ALWAYS,   ADC,    1'b1,   5'd0,   5'd0,   7'd0,   5'd0 };
-        2   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd1,   17'd15 };
-        3   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd0,   7'd0,   5'd1 };
-        4   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd2,   7'd0,   5'd1 };
+        // 0   : iINSTR <= {COND_ALWAYS,   LDCI,   1'b0,   5'd0,   17'd10 };
+        // 1   : iINSTR <= {COND_ALWAYS,   ADC,    1'b1,   5'd0,   5'd0,   7'd0,   5'd0 };
+        // 2   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd1,   17'd15 };
+        // 3   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd0,   7'd0,   5'd1 };
+        // 4   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd2,   7'd0,   5'd1 };
+        // 5   : iINSTR <= {COND_ALWAYS,   FDIV,   1'b0,   5'd2,   5'd3,   7'd0,   5'd1 };
+        0   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd0,   17'd1 };
+        1   : iINSTR <= {COND_ALWAYS,   ITOF,   1'b0,   5'd1,   5'd0,   7'd0,   5'd0 };
+        2   : iINSTR <= {COND_ALWAYS,   FTOI,   1'b0,   5'd2,   5'd1,   7'd0,   5'd0 };
+        3   : iINSTR <= {COND_NEVER ,   ADC,    1'b1,   5'd3,   5'd1,   7'd0,   5'd2 };  
         // @todo. verify FPU state machine
         // @todo. verify memory
         // @todo. verify conditional execution

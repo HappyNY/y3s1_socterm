@@ -35,8 +35,8 @@
         CW_LMEM_RD      = 14, // for LDL
         CW_ALOP         = 15,
         CW_FPOP         = 16, 
-        CW_USEREGA      = 17,
-        CW_USEREGB      = 18, 
+        CW_USEREGB      = 17, 
+        CW_USEREGA      = 18,
         CW_BITS         = 19
     ;
      

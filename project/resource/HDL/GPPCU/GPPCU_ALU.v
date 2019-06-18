@@ -33,13 +33,13 @@ module GPPCU_ALU #(
     reg                 oC;
     
     // -- logics
-    assign oV = ~(iA[BW-1] ^ iB[BW-1]) ^ oQ[BW-1];
+    assign oV = ~(iA[BW-1] ^ iB[BW-1]) & (iA[BW-1] ^ oQ[BW-1]);
     assign oN = oQ[BW-1];
     assign oZ = oQ == 0;
     
     // @see GPPCU_PARAMETERS.vh
     always @(*) case (iOP)
-    /*NOP*/ 4'b0000: {oC, oQ} <= {oC,       0 };
+    /*NOP*/ 4'b0000: {oC, oQ} <= {1'b0,    {BW{1'b0}}};
     /*MOV*/ 4'b0001: {oC, oQ} <= {1'b0,     iB};
     /*MVN*/ 4'b0010: {oC, oQ} <= {1'b1,     ~iB};
     /*ADC*/ 4'b0011: {oC, oQ} <= iA + iB + iC;
