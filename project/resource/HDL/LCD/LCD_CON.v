@@ -44,12 +44,12 @@ module LCD_CON#
     endfunction
     
     // @note. bit_fit(N) == floor(log(N, 2))
-    localparam HBW = bit_fit(THD + THB + THFP + THPW);
-    localparam VBW = bit_fit(TVD + TVB + TVFP + TVPW);
+    localparam HBW = bit_fit(THD + THB + THFP + THPW - 1);
+    localparam VBW = bit_fit(TVD + TVB + TVFP + TVPW - 1);
     localparam ABW = HBW + VBW;
     
-    localparam HDBW = bit_fit(THD);
-    localparam VDBW = bit_fit(TVD);
+    localparam HDBW = bit_fit(THD - 1);
+    localparam VDBW = bit_fit(TVD - 1);
     
     // Port declarations
     input iCLK;

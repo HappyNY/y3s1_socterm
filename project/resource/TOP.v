@@ -58,7 +58,7 @@ module TOP
     wire        tft_vsync;
     wire        tft_de;
     wire        bufferram_rst_reset = 0;
-    wire        buffram_clk_clk = bram_clk; 
+    wire        buffram_clk_clk = ~bram_clk; 
     
     wire [12:0] sdram_wire_addr;
     wire [1:0]  sdram_wire_ba;
@@ -112,9 +112,9 @@ module TOP
     // Assemble color
     wire [15:0] rgb16 = bufferram_out_readdata;
     assign buffer_to_tft_color = {
-        rgb16[15:12], {4{rgb16[11]}}, 
-        rgb16[10: 6], {3{rgb16[ 5]}}, 
-        rgb16[ 4: 1], {4{rgb16[ 0]}}
+        rgb16[15:11], {3{rgb16[11]}}, 
+        rgb16[10: 5], {2{rgb16[ 5]}}, 
+        rgb16[ 4: 0], {3{rgb16[ 0]}}
     }; 
     
     LCD LCD_inst

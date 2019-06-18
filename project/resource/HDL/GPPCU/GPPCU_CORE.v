@@ -160,7 +160,7 @@ module GPPCU_CORE #
                 .inRST          (inRST),
                 
                 .iCW_DEC        ({cw_decode, cw_valid_decode}),
-                .iCW_EXE        C({cw_exec, cw_valid_exec}),
+                .iCW_EXEC       ({cw_exec, cw_valid_exec}),
                 .iCW_WB         ({cw_writeback, cw_valid_writeback}),
                 
                 .iINSTR_FCH     (instr_fetch),

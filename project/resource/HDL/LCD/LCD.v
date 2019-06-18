@@ -66,11 +66,14 @@ module LCD
         end
     endfunction
     
-    // ------ params
+    // ------ params 
+    localparam HPXL = 800, VPXL = 480;
+    localparam MAXP = HPXL * VPXL;
+    
     localparam 
-        ABW  = bit_fit(MAXP),
-        HBW  = bit_fit(HPXL),
-        VBW  = bit_fit(VPXL);
+        ABW  = bit_fit(MAXP - 1),
+        HBW  = bit_fit(HPXL - 1),
+        VBW  = bit_fit(VPXL - 1);
         
     // ------ ports;
     input   clk;                
@@ -98,9 +101,6 @@ module LCD
     wire                oDE     = oLCDCON[12]; 
     wire reset;
     assign oLCDCON[6] = reset;
-    
-    localparam HPXL = 800, VPXL = 480;
-    localparam MAXP = HPXL * VPXL;
              
     LCD_CON LCD_CON_inst(
         .iCLK(clk),

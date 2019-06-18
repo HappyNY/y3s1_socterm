@@ -166,11 +166,11 @@ module SYSTEM (
 	wire         mm_interconnect_0_timer_0_s1_write;                                                 // mm_interconnect_0:timer_0_s1_write -> timer_0:write_n
 	wire  [15:0] mm_interconnect_0_timer_0_s1_writedata;                                             // mm_interconnect_0:timer_0_s1_writedata -> timer_0:writedata
 	wire         mm_interconnect_0_bufferram_out_s1_chipselect;                                      // mm_interconnect_0:bufferram_out_s1_chipselect -> bufferram_out:chipselect
-	wire  [15:0] mm_interconnect_0_bufferram_out_s1_readdata;                                        // bufferram_out:readdata -> mm_interconnect_0:bufferram_out_s1_readdata
-	wire  [16:0] mm_interconnect_0_bufferram_out_s1_address;                                         // mm_interconnect_0:bufferram_out_s1_address -> bufferram_out:address
-	wire   [1:0] mm_interconnect_0_bufferram_out_s1_byteenable;                                      // mm_interconnect_0:bufferram_out_s1_byteenable -> bufferram_out:byteenable
+	wire  [31:0] mm_interconnect_0_bufferram_out_s1_readdata;                                        // bufferram_out:readdata -> mm_interconnect_0:bufferram_out_s1_readdata
+	wire  [15:0] mm_interconnect_0_bufferram_out_s1_address;                                         // mm_interconnect_0:bufferram_out_s1_address -> bufferram_out:address
+	wire   [3:0] mm_interconnect_0_bufferram_out_s1_byteenable;                                      // mm_interconnect_0:bufferram_out_s1_byteenable -> bufferram_out:byteenable
 	wire         mm_interconnect_0_bufferram_out_s1_write;                                           // mm_interconnect_0:bufferram_out_s1_write -> bufferram_out:write
-	wire  [15:0] mm_interconnect_0_bufferram_out_s1_writedata;                                       // mm_interconnect_0:bufferram_out_s1_writedata -> bufferram_out:writedata
+	wire  [31:0] mm_interconnect_0_bufferram_out_s1_writedata;                                       // mm_interconnect_0:bufferram_out_s1_writedata -> bufferram_out:writedata
 	wire         mm_interconnect_0_bufferram_out_s1_clken;                                           // mm_interconnect_0:bufferram_out_s1_clken -> bufferram_out:clken
 	wire         mm_interconnect_0_sdram_s1_chipselect;                                              // mm_interconnect_0:sdram_s1_chipselect -> sdram:az_cs
 	wire  [31:0] mm_interconnect_0_sdram_s1_readdata;                                                // sdram:za_data -> mm_interconnect_0:sdram_s1_readdata

@@ -46,11 +46,11 @@ module SYSTEM_bufferram_out (
                             )
 ;
 
-  output  [ 15: 0] readdata;
+  output  [ 31: 0] readdata;
   output  [ 15: 0] readdata2;
-  input   [ 16: 0] address;
+  input   [ 15: 0] address;
   input   [ 16: 0] address2;
-  input   [  1: 0] byteenable;
+  input   [  3: 0] byteenable;
   input   [  1: 0] byteenable2;
   input            chipselect;
   input            chipselect2;
@@ -65,13 +65,13 @@ module SYSTEM_bufferram_out (
   input            reset_req2;
   input            write;
   input            write2;
-  input   [ 15: 0] writedata;
+  input   [ 31: 0] writedata;
   input   [ 15: 0] writedata2;
 
 
 wire             clocken0;
 wire             clocken1;
-wire    [ 15: 0] readdata;
+wire    [ 31: 0] readdata;
 wire    [ 15: 0] readdata2;
 wire             wren;
 wire             wren2;
@@ -103,19 +103,19 @@ wire             wren2;
            the_altsyncram.indata_reg_b = "CLOCK1",
            the_altsyncram.init_file = "UNUSED",
            the_altsyncram.lpm_type = "altsyncram",
-           the_altsyncram.maximum_depth = 96000,
-           the_altsyncram.numwords_a = 96000,
+           the_altsyncram.maximum_depth = 48000,
+           the_altsyncram.numwords_a = 48000,
            the_altsyncram.numwords_b = 96000,
            the_altsyncram.operation_mode = "BIDIR_DUAL_PORT",
            the_altsyncram.outdata_reg_a = "UNREGISTERED",
            the_altsyncram.outdata_reg_b = "UNREGISTERED",
            the_altsyncram.ram_block_type = "AUTO",
            the_altsyncram.read_during_write_mode_mixed_ports = "DONT_CARE",
-           the_altsyncram.width_a = 16,
+           the_altsyncram.width_a = 32,
            the_altsyncram.width_b = 16,
-           the_altsyncram.width_byteena_a = 2,
+           the_altsyncram.width_byteena_a = 4,
            the_altsyncram.width_byteena_b = 2,
-           the_altsyncram.widthad_a = 17,
+           the_altsyncram.widthad_a = 16,
            the_altsyncram.widthad_b = 17,
            the_altsyncram.wrcontrol_wraddress_reg_b = "CLOCK1";
 
