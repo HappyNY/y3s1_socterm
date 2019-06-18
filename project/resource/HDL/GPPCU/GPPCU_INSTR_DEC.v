@@ -44,9 +44,9 @@ module GPPCU_INSTR_DEC (
         FSUB  : oCW <= 'b__1_1_1_0_0_0_x110_xxxx_00_0_1;
         FNEG  : oCW <= 'b__0_0_1_0_0_0_xxxx_xxxx_00_0_0;
         FSQRT : oCW <= 'b__1_0_1_0_0_0_x011_xxxx_00_0_1;
-        LDL   : oCW <= 'b__1_1_0_0_1_0_xxxx_xxxx_00_0_1;
+        LDL   : oCW <= 'b__0_1_0_0_1_0_xxxx_xxxx_01_0_1;
         LDCI  : oCW <= 'b__0_0_0_1_0_0_xxxx_0001_11_1_1; // Move operation
-        STL   : oCW <= 'b__1_1_0_0_0_1_xxxx_xxxx_00_0_0;
+        STL   : oCW <= 'b__1_1_0_0_0_1_xxxx_xxxx_01_0_0;
         default: oCW <= 0;
         endcase 
     end

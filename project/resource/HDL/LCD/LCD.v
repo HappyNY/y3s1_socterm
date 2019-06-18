@@ -125,7 +125,7 @@ module LCD
     // end
     assign oLCDRGB = iCOLOR;
     assign oLCDCON[11] = bBL;
-    assign oLCDCON[10] = bDTH; 
+    assign oLCDCON[10] = ~bDTH; 
     assign oLCDCON[ 5] = 1'b1;
     assign oLCDCON[ 4] = 1'b0; 
 endmodule

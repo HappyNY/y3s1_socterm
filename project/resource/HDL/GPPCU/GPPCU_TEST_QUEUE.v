@@ -4,7 +4,8 @@ module GPPCU_TEST_QUEUE(
     inRST               ,
     iCMD                ,
     iDATA               ,    
-    oDATA
+    oDATA               ,
+    oFULL
 );
     /*
     ABOUT CMD
@@ -24,6 +25,7 @@ module GPPCU_TEST_QUEUE(
     input   [31:0]      iCMD;
     input   [31:0]      iDATA;
     output 	[31:0]      oDATA;
+    output              oFULL;
     
     // -- regs    
     wire    [16:0]      oGMEM_ADDR          ;
@@ -37,6 +39,7 @@ module GPPCU_TEST_QUEUE(
         OPR_WRL = 2,
         OPR_WRG = 3
     ;
+    
     // -- routing
     wire                opclk = iCMD[31];
     wire    [ 6:0]      wparam = iCMD[30:24];
@@ -52,7 +55,7 @@ module GPPCU_TEST_QUEUE(
     wire    [31:0]      queue_dat;
     DPRAM_PARAM #( 
         .DBW         (32), 
-        .DEPTH       (128)
+        .DEPTH       (256)
     ) DPRAM_PARAM_queue
     (
         .iPA_CLK     (opclk),
@@ -68,6 +71,7 @@ module GPPCU_TEST_QUEUE(
     ); 
     
     assign  instr_valid = queue_head != queue_tail;
+    assign  oFULL = queue_head = queue_tail - 1;
     
     // adjust head
     always @(posedge opclk or negedge inRST) begin
@@ -75,7 +79,7 @@ module GPPCU_TEST_QUEUE(
             queue_head <= 0;
         end
         else if(wparam == OPR_INSTR) begin 
-            queue_head          <= queue_head + 1;
+            queue_head <= queue_head + 1;
         end
     end
     
@@ -91,6 +95,7 @@ module GPPCU_TEST_QUEUE(
         end
     end
     
+    // @todo. Resolve invalid data read/write operation for thread 0 and 1.
     // -- core
     GPPCU_CORE # (
         .NUM_THREAD (24),
@@ -107,8 +112,8 @@ module GPPCU_TEST_QUEUE(
         .iLMEM_ADDR          (command),
         .iLMEM_WDATA         (iDATA),
         .oLMEM_RDATA         (oDATA),
-        .iLMEM_RD            (wparam == OPR_WRL),
-        .iLMEM_WR            (wparam == OPR_RDL),
+        .iLMEM_RD            (wparam == OPR_RDL),
+        .iLMEM_WR            (wparam == OPR_WRL),
         .oGMEM_ADDR          (oGMEM_ADDR),
         .iGMEM_WDATA         (iGMEM_WDATA),
         .oGMEM_CLK           (oGMEM_CLK)
