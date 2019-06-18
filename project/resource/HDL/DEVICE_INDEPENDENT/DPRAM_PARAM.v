@@ -1,20 +1,20 @@
 module DPRAM_PARAM #(
     parameter
-    DBW = 32, 
-    DEPTH = 1023
+    DBW         = 32, 
+    DEPTH       = 1023
 )
 (
-    iPA_CLK,
-    iPA_ADDR,
-    iPA_WR, 
-    iPA_WDATA,
-    oPA_RDATA,    
+    iPA_CLK     ,
+    iPA_ADDR    ,
+    iPA_WR      , 
+    iPA_WDATA   ,
+    oPA_RDATA   ,    
     
-    iPB_CLK,
-    iPB_ADDR,
-    iPB_WR, 
-    iPB_WDATA,
-    oPB_RDATA
+    iPB_CLK     ,
+    iPB_ADDR    ,
+    iPB_WR      , 
+    iPB_WDATA   ,
+    oPB_RDATA   
 ); 
     `include "bit_fit.vh"
     

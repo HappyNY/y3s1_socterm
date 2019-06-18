@@ -71,6 +71,9 @@ module TOP
     wire        sdram_wire_we_n;
     
     wire [16:0] buff_addr = ((tft_vaddr>>1) * 400) + (tft_haddr>>1); 
+    
+    wire [31:0] gppcu_cmd, gppcu_datain, gppcu_dataout;
+    
     // ------ regs 
     reg[16:0] buff_pvt;
     
@@ -86,6 +89,9 @@ module TOP
 		.bufferram_rst_reset(bufferram_rst_reset),      
 		.buffram_clk_clk(buffram_clk_clk),          
         .clk_clk(iCLK50MHz),         
+		.pio_cmd_out_export(gppcu_cmd),       //   pio_cmd_out.export
+		.pio_data_in_export(gppcu_dataout),       //   pio_data_in.export
+		.pio_data_out_export(gppcu_datain),      //  pio_data_out.export
 		.sdram_wire_addr(DRAM_ADDR),       
 		.sdram_wire_ba(DRAM_BA),           
 		.sdram_wire_cas_n(DRAM_CAS_N),     
@@ -111,15 +117,6 @@ module TOP
         rgb16[ 4: 1], {4{rgb16[ 0]}}
     }; 
     
-    // Assemble address
-    // assign buff_addr = (tft_haddr>>1) + buff_pvt;
-    // always @(negedge tft_vaddr[0] or posedge tft_vsync) begin 
-    //     if(tft_vsync)
-    //         buff_pvt = 0;
-    //     else
-    //         buff_pvt <= buff_pvt + 400;     
-    // end
-    
     LCD LCD_inst
     (
         .clk(iCLK50MHz),                
@@ -137,5 +134,14 @@ module TOP
         .oHSYNC(tft_hsync),
         .oVSYNC(tft_vsync)
     ); 
+    
+    // GPPCU CORE
+    GPPCU_TEST_QUEUE GPPCU_TEST_QUEUE_inst(
+        .iACLK               (iCLK50MHz),
+        .inRST               (inRST),
+        .iCMD                (gppcu_cmd),
+        .iDATA               (gppcu_datain),    
+        .oDATA               (gppcu_dataout)
+    );
 
 endmodule

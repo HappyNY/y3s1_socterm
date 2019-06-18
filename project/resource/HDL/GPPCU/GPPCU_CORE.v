@@ -132,7 +132,7 @@ module GPPCU_CORE #
     );
      
     // Global memory interface
-    assign oGMEM_CLK  = iACLK & cw_valid_fetch & decoding_cw[CW_GMEMRD];
+    assign oGMEM_CLK  = iACLK & cw_valid_decode & cw_decode[CW_GMEMRD];
     assign oGMEM_ADDR = instr_fetch[INSTR_IMM2_17+:17];
     
     // Thread instances

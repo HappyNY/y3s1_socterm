@@ -94,7 +94,7 @@ module GPPCU_THREAD (
     // -- Local memory
     DPRAM_PARAM #( 
         .DBW(32), 
-        .DEPTH(2048)
+        .DEPTH(1024)
     ) DPRAM_PARAM_local_memory
     (
         // For external interface

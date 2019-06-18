@@ -34,7 +34,34 @@ module SYSTEM_nios2_gen2_0 (
 		output wire        debug_mem_slave_waitrequest,         //                          .waitrequest
 		input  wire        debug_mem_slave_write,               //                          .write
 		input  wire [31:0] debug_mem_slave_writedata,           //                          .writedata
-		output wire        dummy_ci_port                        // custom_instruction_master.readra
+		input  wire        A_ci_multi_done,                     // custom_instruction_master.done
+		input  wire [31:0] A_ci_multi_result,                   //                          .multi_result
+		output wire [4:0]  A_ci_multi_a,                        //                          .multi_a
+		output wire [4:0]  A_ci_multi_b,                        //                          .multi_b
+		output wire [4:0]  A_ci_multi_c,                        //                          .multi_c
+		output wire        A_ci_multi_clk_en,                   //                          .clk_en
+		output wire        A_ci_multi_clock,                    //                          .clk
+		output wire        A_ci_multi_reset,                    //                          .reset
+		output wire        A_ci_multi_reset_req,                //                          .reset_req
+		output wire [31:0] A_ci_multi_dataa,                    //                          .multi_dataa
+		output wire [31:0] A_ci_multi_datab,                    //                          .multi_datab
+		output wire [7:0]  A_ci_multi_n,                        //                          .multi_n
+		output wire        A_ci_multi_readra,                   //                          .multi_readra
+		output wire        A_ci_multi_readrb,                   //                          .multi_readrb
+		output wire        A_ci_multi_start,                    //                          .start
+		output wire        A_ci_multi_writerc,                  //                          .multi_writerc
+		input  wire [31:0] E_ci_combo_result,                   //                          .result
+		output wire [4:0]  E_ci_combo_a,                        //                          .a
+		output wire [4:0]  E_ci_combo_b,                        //                          .b
+		output wire [4:0]  E_ci_combo_c,                        //                          .c
+		output wire [31:0] E_ci_combo_dataa,                    //                          .dataa
+		output wire [31:0] E_ci_combo_datab,                    //                          .datab
+		output wire        E_ci_combo_estatus,                  //                          .estatus
+		output wire [31:0] E_ci_combo_ipending,                 //                          .ipending
+		output wire [7:0]  E_ci_combo_n,                        //                          .n
+		output wire        E_ci_combo_readra,                   //                          .readra
+		output wire        E_ci_combo_readrb,                   //                          .readrb
+		output wire        E_ci_combo_writerc                   //                          .writerc
 	);
 
 	SYSTEM_nios2_gen2_0_cpu cpu (
@@ -65,7 +92,34 @@ module SYSTEM_nios2_gen2_0 (
 		.debug_mem_slave_waitrequest         (debug_mem_slave_waitrequest),         //                          .waitrequest
 		.debug_mem_slave_write               (debug_mem_slave_write),               //                          .write
 		.debug_mem_slave_writedata           (debug_mem_slave_writedata),           //                          .writedata
-		.dummy_ci_port                       (dummy_ci_port)                        // custom_instruction_master.readra
+		.A_ci_multi_done                     (A_ci_multi_done),                     // custom_instruction_master.done
+		.A_ci_multi_result                   (A_ci_multi_result),                   //                          .multi_result
+		.A_ci_multi_a                        (A_ci_multi_a),                        //                          .multi_a
+		.A_ci_multi_b                        (A_ci_multi_b),                        //                          .multi_b
+		.A_ci_multi_c                        (A_ci_multi_c),                        //                          .multi_c
+		.A_ci_multi_clk_en                   (A_ci_multi_clk_en),                   //                          .clk_en
+		.A_ci_multi_clock                    (A_ci_multi_clock),                    //                          .clk
+		.A_ci_multi_reset                    (A_ci_multi_reset),                    //                          .reset
+		.A_ci_multi_reset_req                (A_ci_multi_reset_req),                //                          .reset_req
+		.A_ci_multi_dataa                    (A_ci_multi_dataa),                    //                          .multi_dataa
+		.A_ci_multi_datab                    (A_ci_multi_datab),                    //                          .multi_datab
+		.A_ci_multi_n                        (A_ci_multi_n),                        //                          .multi_n
+		.A_ci_multi_readra                   (A_ci_multi_readra),                   //                          .multi_readra
+		.A_ci_multi_readrb                   (A_ci_multi_readrb),                   //                          .multi_readrb
+		.A_ci_multi_start                    (A_ci_multi_start),                    //                          .start
+		.A_ci_multi_writerc                  (A_ci_multi_writerc),                  //                          .multi_writerc
+		.E_ci_combo_result                   (E_ci_combo_result),                   //                          .result
+		.E_ci_combo_a                        (E_ci_combo_a),                        //                          .a
+		.E_ci_combo_b                        (E_ci_combo_b),                        //                          .b
+		.E_ci_combo_c                        (E_ci_combo_c),                        //                          .c
+		.E_ci_combo_dataa                    (E_ci_combo_dataa),                    //                          .dataa
+		.E_ci_combo_datab                    (E_ci_combo_datab),                    //                          .datab
+		.E_ci_combo_estatus                  (E_ci_combo_estatus),                  //                          .estatus
+		.E_ci_combo_ipending                 (E_ci_combo_ipending),                 //                          .ipending
+		.E_ci_combo_n                        (E_ci_combo_n),                        //                          .n
+		.E_ci_combo_readra                   (E_ci_combo_readra),                   //                          .readra
+		.E_ci_combo_readrb                   (E_ci_combo_readrb),                   //                          .readrb
+		.E_ci_combo_writerc                  (E_ci_combo_writerc)                   //                          .writerc
 	);
 
 endmodule
