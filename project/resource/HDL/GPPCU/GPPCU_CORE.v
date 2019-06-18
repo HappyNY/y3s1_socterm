@@ -65,7 +65,12 @@ module GPPCU_CORE #
     
     // wires
     wire can_fetch;
-    wire data_stall; // prevents data hazard
+    wire data_stall_decode; // prevents data hazard
+    // @todo.
+    //      Separate stall signal into two category.
+    //      decode stall contains both 'data not ready' and 'calculating'
+    //      
+    wire data_stall_exec;
     wire[CW_BITS-1:1] decoding_cw;
     
     // logics
@@ -78,28 +83,29 @@ module GPPCU_CORE #
     //          F D . . E W
     //            F . . D E W
     always @(posedge iACLK) begin
-        cw_valid_writeback  <= ~inRST ? 0 : cw_valid_exec;
-        cw_valid_exec       <= ~inRST ? 0 : data_stall ? 0               : cw_valid_decode;
-        cw_valid_decode     <= ~inRST ? 0 : data_stall ? cw_valid_decode : cw_valid_fetch;
-        cw_valid_fetch      <= ~inRST ? 0 : data_stall ? cw_valid_fetch  : can_fetch & iINSTR_VALID;
+        cw_valid_writeback  <= ~inRST ? 0 : data_stall_exec   ? 0               : cw_valid_exec;
+        cw_valid_exec       <= ~inRST ? 0 : data_stall_exec   ? cw_valid_exec   : data_stall_decode  ? 0 : cw_valid_decode;
+        cw_valid_decode     <= ~inRST ? 0 : data_stall_decode ? cw_valid_decode : cw_valid_fetch;
+        cw_valid_fetch      <= ~inRST ? 0 : data_stall_decode ? cw_valid_fetch  : can_fetch          & iINSTR_VALID;
         
         cw_writeback        <= cw_exec;
-        cw_exec             <= data_stall ? cw_exec         : cw_decode;
-        cw_decode           <= data_stall ? cw_decode       : decoding_cw;
+        cw_exec             <= data_stall_decode ? cw_exec         : cw_decode;
+        cw_decode           <= data_stall_decode ? cw_decode       : decoding_cw;
         // There is no cw_instr 
         
         instr_writeback     <= instr_exec;
-        instr_exec          <= data_stall ? instr_exec      : instr_decode;
-        instr_decode        <= data_stall ? instr_decode    : instr_fetch;
-        instr_fetch         <= data_stall ? instr_fetch     : iINSTR;
+        instr_exec          <= data_stall_decode ? instr_exec      : instr_decode;
+        instr_decode        <= data_stall_decode ? instr_decode    : instr_fetch;
+        instr_fetch         <= data_stall_decode ? instr_fetch     : iINSTR;
     end
     
     // DECODE STAGE
     // Stall generator
-    wire reg_use_en;
+    wire can_use_reg;
     wire on_calculation_delay;
-    assign data_stall = ~reg_use_en | on_calculation_delay;
-    assign can_fetch  =  reg_use_en;
+    assign data_stall_exec      = on_calculation_delay;
+    assign data_stall_decode    = ~can_use_reg | on_calculation_delay;
+    assign can_fetch            = ~data_stall_decode;
     GPPCU_STALL_GEN #(
         .NUMREG(32)
     ) GPPCU_STALL_GEN_inst
@@ -112,7 +118,7 @@ module GPPCU_CORE #
         .iVALID_REGD    (cw_valid_decode & cw_decode[CW_REGWR]),
         .iVALID_REGA    (cw_valid_decode & cw_decode[CW_USEREGA]),
         .iVALID_REGB    (cw_valid_decode & cw_decode[CW_USEREGB]),
-        .oENABLED       (reg_use_en),
+        .oENABLED       (can_use_reg),
         
         .iWRREG         (instr_writeback[INSTR_REGD_5+:5]),
         .iWRREG_VALID   (cw_valid_writeback & cw_writeback[CW_REGWR])
