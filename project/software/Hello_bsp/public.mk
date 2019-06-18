@@ -112,6 +112,10 @@ BSP_TYPE := hal
 # CDX present. 
 # setting CDX is false
 
+# Compile Newlib 
+# setting COMPILE_NEWLIB is 1
+COMPILE_NEWLIB = 1
+
 # CPU Name 
 # setting CPU_NAME is nios2_gen2_0
 CPU_NAME = nios2_gen2_0
@@ -152,14 +156,14 @@ SOPC_SYSID_FLAG += --id=303182900
 ELF_PATCH_FLAG  += --id 303182900
 
 # The SOPC System ID Base Address 
-# setting SOPC_SYSID_BASE_ADDRESS is 0x10241050
-SOPC_SYSID_FLAG += --sidp=0x10241050
-ELF_PATCH_FLAG  += --sidp 0x10241050
+# setting SOPC_SYSID_BASE_ADDRESS is 0x10041078
+SOPC_SYSID_FLAG += --sidp=0x10041078
+ELF_PATCH_FLAG  += --sidp 0x10041078
 
 # The SOPC Timestamp 
-# setting SOPC_TIMESTAMP is 1560232878
-SOPC_SYSID_FLAG += --timestamp=1560232878
-ELF_PATCH_FLAG  += --timestamp 1560232878
+# setting SOPC_TIMESTAMP is 1560869147
+SOPC_SYSID_FLAG += --timestamp=1560869147
+ELF_PATCH_FLAG  += --timestamp 1560869147
 
 # Enable JTAG UART driver to recover when host is inactive causing buffer to 
 # full without returning error. Printf will not fail with this recovery. none 
@@ -359,6 +363,14 @@ ELF_PATCH_FLAG  += --stdout_dev jtag_uart_0
 
 
 #------------------------------------------------------------------------------
+#                 CUSTOM NEWLIB LIBRARY & INCLUDE PATHS
+#------------------------------------------------------------------------------
+
+NEWLIB_DIR = $(BSP_ROOT_DIR)/newlib
+ALT_INCLUDE_DIRS += $(NEWLIB_DIR)/nios2-elf/include
+ALT_LIBRARY_DIRS += $(NEWLIB_DIR)/nios2-elf/lib
+
+#------------------------------------------------------------------------------
 #                 SOFTWARE COMPONENT & DRIVER INCLUDE PATHS
 #------------------------------------------------------------------------------
 
@@ -369,6 +381,26 @@ ALT_INCLUDE_DIRS += $(ALT_LIBRARY_ROOT_DIR)/HAL/inc
 #------------------------------------------------------------------------------
 
 ALT_CPPFLAGS += -DALT_SINGLE_THREADED
+
+#------------------------------------------------------------------------------
+#        SOFTWARE COMPONENT & DRIVER PRODUCED ALT_CFLAGS ADDITIONS
+#------------------------------------------------------------------------------
+
+ALT_CFLAGS += -fno-math-errno
+ALT_CFLAGS += -mcustom-fabss=224
+ALT_CFLAGS += -mcustom-fadds=253
+ALT_CFLAGS += -mcustom-fcmpeqs=227
+ALT_CFLAGS += -mcustom-fcmpges=228
+ALT_CFLAGS += -mcustom-fcmpgts=229
+ALT_CFLAGS += -mcustom-fcmples=230
+ALT_CFLAGS += -mcustom-fcmplts=231
+ALT_CFLAGS += -mcustom-fcmpnes=226
+ALT_CFLAGS += -mcustom-fdivs=255
+ALT_CFLAGS += -mcustom-fixsi=249
+ALT_CFLAGS += -mcustom-floatis=250
+ALT_CFLAGS += -mcustom-fmuls=252
+ALT_CFLAGS += -mcustom-fnegs=225
+ALT_CFLAGS += -mcustom-fsubs=254
 
 #END MANAGED
 

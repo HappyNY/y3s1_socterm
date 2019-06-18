@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>2019. 6. 11 오후 3:06:56</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1560233216421</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>2019. 6. 19 오전 12:02:44</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1560870164247</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\software\Hello_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\SYSTEM.sopcinfo</SopcDesignFile>
@@ -906,27 +906,45 @@
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>bufferram_out</slaveDescriptor>
-                <addressRange>0x10200000 - 0x1022EDFF</addressRange>
+                <addressRange>0x10000000 - 0x1002EDFF</addressRange>
                 <addressSpan>192000</addressSpan>
                 <attributes>memory</attributes>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>timer_0</slaveDescriptor>
-                <addressRange>0x10241000 - 0x1024103F</addressRange>
+                <addressRange>0x10041000 - 0x1004103F</addressRange>
                 <addressSpan>64</addressSpan>
                 <attributes>timer</attributes>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>jtag_uart_0</slaveDescriptor>
-                <addressRange>0x10241048 - 0x1024104F</addressRange>
-                <addressSpan>8</addressSpan>
-                <attributes>printable</attributes>
+                <slaveDescriptor>pio_dataout</slaveDescriptor>
+                <addressRange>0x10041040 - 0x1004104F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>pio_cmd</slaveDescriptor>
+                <addressRange>0x10041050 - 0x1004105F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>pio_datain</slaveDescriptor>
+                <addressRange>0x10041060 - 0x1004106F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>sysid_qsys_0</slaveDescriptor>
-                <addressRange>0x10241050 - 0x10241057</addressRange>
+                <addressRange>0x10041078 - 0x1004107F</addressRange>
                 <addressSpan>8</addressSpan>
                 <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>jtag_uart_0</slaveDescriptor>
+                <addressRange>0x10041080 - 0x10041087</addressRange>
+                <addressSpan>8</addressSpan>
+                <attributes>printable</attributes>
         </MemoryMap>
         <LinkerSection>
                 <sectionName>.text</sectionName>

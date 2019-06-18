@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <stdio.h>
+#include <stdio.h> 
 
 #define RGB(r, g, b) ((((r)&0x1f)<<11)|(((g)&0x3f)<<5)|(((b)&0x1f)<<0))
 

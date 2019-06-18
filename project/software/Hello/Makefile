@@ -146,6 +146,7 @@ C_SRCS :=
 CXX_SRCS += src/cgrom.cpp
 CXX_SRCS += hello_world.cpp
 CXX_SRCS += src/chout.cpp
+CXX_SRCS += src/gppcu.cpp
 ASM_SRCS :=
 
 

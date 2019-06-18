@@ -10,5 +10,14 @@
 			"path": "docs"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"*.rst": "8051",
+			"*.lst": "8051",
+			"*.r16": "8051",
+			"*.c51": "c",
+			"*.s": "8051",
+			"cstring": "cpp"
+		}
+	}
 }

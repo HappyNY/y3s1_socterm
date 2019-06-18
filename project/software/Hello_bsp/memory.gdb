@@ -3,7 +3,7 @@
 # Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'SYSTEM'
 # SOPC Builder design path: ../../SYSTEM.sopcinfo
 #
-# Generated: Tue Jun 04 21:47:26 KST 2019
+# Generated: Tue Jun 18 22:47:35 KST 2019
 
 # DO NOT MODIFY THIS FILE
 #
@@ -50,4 +50,4 @@
 memory 0x8000000 0x10000000 cache
 
 # bufferram_out
-memory 0x10200000 0x1022ee00 cache
+memory 0x10000000 0x1002ee00 cache
