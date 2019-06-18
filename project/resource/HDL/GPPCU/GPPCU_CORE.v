@@ -2,7 +2,8 @@
 module GPPCU_CORE #
 (
     parameter
-    NUM_THREAD = 16
+    NUM_THREAD = 16,
+    WORD_BW  = 10
 )
 (
     iACLK               ,          // Instruction should be valid on ACLK's rising edge.
@@ -152,7 +153,9 @@ module GPPCU_CORE #
             wire lmem_thread_sel = iLMEM_THREAD_SEL == idx_thread;
             
             // Thread instance.
-            GPPCU_THREAD GPPCU_THREAD_inst( 
+            GPPCU_THREAD #(
+                .WORD_BITS(WORD_BW)
+            )GPPCU_THREAD_inst( 
                 .iACLK(iACLK),
                 .inRST(inRST),
                 

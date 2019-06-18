@@ -1,4 +1,8 @@
-module GPPCU_THREAD ( 
+module GPPCU_THREAD # (
+    parameter 
+    WORD_BITS   = 10
+)
+( 
     iACLK,
     inRST,
      
@@ -94,7 +98,7 @@ module GPPCU_THREAD (
     // -- Local memory
     DPRAM_PARAM #( 
         .DBW(32), 
-        .DEPTH(1024)
+        .DEPTH(1 << WORD_BITS)
     ) DPRAM_PARAM_local_memory
     (
         // For external interface

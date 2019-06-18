@@ -93,7 +93,8 @@ module GPPCU_TEST_QUEUE(
     
     // -- core
     GPPCU_CORE # (
-        .NUM_THREAD (16)
+        .NUM_THREAD (16),
+        .WORD_BW    (10)
     )
     (
         .iACLK               (iACLK),          // Instruction should be valid on ACLK's rising edge.
