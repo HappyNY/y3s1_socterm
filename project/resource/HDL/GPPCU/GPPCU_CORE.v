@@ -82,6 +82,7 @@ module GPPCU_CORE #
     //        F D E W
     //          F D . . E W
     //            F . . D E W
+    // @todo. verify new pipeline logic
     always @(posedge iACLK) begin
         cw_valid_writeback  <= ~inRST ? 0 : data_stall_exec   ? 0               : cw_valid_exec;
         cw_valid_exec       <= ~inRST ? 0 : data_stall_exec   ? cw_valid_exec   : data_stall_decode  ? 0 : cw_valid_decode;

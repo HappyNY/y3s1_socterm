@@ -41,8 +41,8 @@ module GPPCU_STALL_GEN #
     wire    [NUMREG-1:0]    wr_mask;
 
     // -- logics
-    // wr_mask enables synchronous access to written reg on it. ... @defered.
-    assign oENABLED = !(|(occupied & ((rq_mask_a | rq_mask_b)/* & ~wr_mask*/)));
+    // wr_mask enables synchronous access to written reg on it. ... 
+    assign oENABLED = !(|(occupied & ((rq_mask_a | rq_mask_b) & ~wr_mask)));
     
     // -- occupy logic
     generate 
@@ -59,9 +59,9 @@ module GPPCU_STALL_GEN #
                     occupied[i] = pending_occupy[i]; 
             end
             
-            assign rq_mask_a[i] = (i == iREGA) & iVALID_REGA;
-            assign rq_mask_b[i] = (i == iREGB) & iVALID_REGB;
-            assign wr_mask[i]   = (i ==iWRREG) & iWRREG_VALID;
+            assign rq_mask_a[i] = (i == iREGA)  & iVALID_REGA;
+            assign rq_mask_b[i] = (i == iREGB)  & iVALID_REGB;
+            assign wr_mask[i]   = (i == iWRREG) & iWRREG_VALID;
         end
     endgenerate
 endmodule
