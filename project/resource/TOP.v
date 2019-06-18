@@ -79,28 +79,28 @@ module TOP
     
     // ------ logic
     SYSTEM SYSTEM_inst(
-        .bufferram_out_address(buff_addr),
-        .bufferram_out_chipselect(bufferram_out_chipselect), 
-        .bufferram_out_clken(1),       
-        .bufferram_out_write(/*MUST SET 0 LATER*/0),       
-        .bufferram_out_readdata(bufferram_out_readdata),   
-        .bufferram_out_writedata(/*MUST SET 0 LATER*/0),//buff_addr),    
-        .bufferram_out_byteenable(2'b11), 
-		.bufferram_rst_reset(bufferram_rst_reset),      
-		.buffram_clk_clk(buffram_clk_clk),          
-        .clk_clk(iCLK50MHz),         
-		.pio_cmd_out_export(gppcu_cmd),       //   pio_cmd_out.export
-		.pio_data_in_export(gppcu_dataout),       //   pio_data_in.export
-		.pio_data_out_export(gppcu_datain),      //  pio_data_out.export
-		.sdram_wire_addr(DRAM_ADDR),       
-		.sdram_wire_ba(DRAM_BA),           
-		.sdram_wire_cas_n(DRAM_CAS_N),     
-		.sdram_wire_cke(DRAM_CKE),         
-		.sdram_wire_cs_n(DRAM_CS_N),       
-		.sdram_wire_dq(DRAM_DQ),           
-		.sdram_wire_dqm(DRAM_DQM),         
-		.sdram_wire_ras_n(DRAM_RAS_N),     
-		.sdram_wire_we_n(DRAM_WE_N)        
+        .bufferram_out_address      (buff_addr),
+        .bufferram_out_chipselect   (bufferram_out_chipselect), 
+        .bufferram_out_clken        (1),       
+        .bufferram_out_write        (/*MUST SET 0 LATER*/0),       
+        .bufferram_out_readdata     (bufferram_out_readdata),   
+        .bufferram_out_writedata    (/*MUST SET 0 LATER*/0),//buff_addr),    
+        .bufferram_out_byteenable   (2'b11), 
+		.bufferram_rst_reset        (bufferram_rst_reset),      
+		.buffram_clk_clk            (buffram_clk_clk),          
+        .clk_clk                    (iCLK50MHz),         
+		.pio_cmd_out_export         (gppcu_cmd),       //   pio_cmd_out.export
+		.pio_data_in_export         (gppcu_dataout),       //   pio_data_in.export
+		.pio_data_out_export        (gppcu_datain),      //  pio_data_out.export
+		.sdram_wire_addr            (DRAM_ADDR),       
+		.sdram_wire_ba              (DRAM_BA),           
+		.sdram_wire_cas_n           (DRAM_CAS_N),     
+		.sdram_wire_cke             (DRAM_CKE),         
+		.sdram_wire_cs_n            (DRAM_CS_N),       
+		.sdram_wire_dq              (DRAM_DQ),           
+		.sdram_wire_dqm             (DRAM_DQM),         
+		.sdram_wire_ras_n           (DRAM_RAS_N),     
+		.sdram_wire_we_n            (DRAM_WE_N)        
     );
     
     // Phase shift by 3 ns
@@ -119,20 +119,20 @@ module TOP
     
     LCD LCD_inst
     (
-        .clk(iCLK50MHz),                
-        .rst_(inRST),
-        .bBL(1),                // Backlight en
-        .bDTH(0),               // Dithering en
-        .oBRAM_CLK(bram_clk),           // to VRAM
-        .iCOLOR(buffer_to_tft_color),              // from VRAM 
-        .oHADDR(tft_haddr),
-        .oVADDR(tft_vaddr),
-        .oADDR(bufferram_out_address),
-        .oLCDRGB(LCDRGB),            // to LCD device output
-        .oLCDCON(LCDCON[13:3]),
-        .oDE(tft_de),
-        .oHSYNC(tft_hsync),
-        .oVSYNC(tft_vsync)
+        .clk            (iCLK50MHz),                
+        .rst_           (inRST),
+        .bBL            (1),                // Backlight en
+        .bDTH           (0),               // Dithering en
+        .oBRAM_CLK      (bram_clk),           // to VRAM
+        .iCOLOR         (buffer_to_tft_color),              // from VRAM 
+        .oHADDR         (tft_haddr),
+        .oVADDR         (tft_vaddr),
+        .oADDR          (bufferram_out_address),
+        .oLCDRGB        (LCDRGB),            // to LCD device output
+        .oLCDCON        (LCDCON[13:3]),
+        .oDE            (tft_de),
+        .oHSYNC         (tft_hsync),
+        .oVSYNC         (tft_vsync)
     ); 
     
     // GPPCU CORE
