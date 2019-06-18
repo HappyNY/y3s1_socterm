@@ -22,7 +22,7 @@ module GPPCU_CORE #
     
     oGMEM_ADDR          ,
     iGMEM_WDATA         ,
-    oGMEM_CLK
+    oGMEM_CLK           
 );
     /// params
     `include "GPPCU_PARAMETERS.vh"
@@ -156,28 +156,28 @@ module GPPCU_CORE #
             GPPCU_THREAD #(
                 .WORD_BITS(WORD_BW)
             )GPPCU_THREAD_inst( 
-                .iACLK(iACLK),
-                .inRST(inRST),
+                .iACLK          (iACLK),
+                .inRST          (inRST),
                 
-                .iCW_DEC({cw_decode, cw_valid_decode}),
-                .iCW_EXEC({cw_exec, cw_valid_exec}),
-                .iCW_WB({cw_writeback, cw_valid_writeback}),
+                .iCW_DEC        ({cw_decode, cw_valid_decode}),
+                .iCW_EXE        C({cw_exec, cw_valid_exec}),
+                .iCW_WB         ({cw_writeback, cw_valid_writeback}),
                 
-                .iINSTR_FCH(instr_fetch),
-                .iINSTR_DEC(instr_decode),
-                .iINSTR_EXEC(instr_exec),
-                .iINSTR_WB(instr_writeback),
+                .iINSTR_FCH     (instr_fetch),
+                .iINSTR_DEC     (instr_decode),
+                .iINSTR_EXEC    (instr_exec),
+                .iINSTR_WB      (instr_writeback),
                 
-                .iLMEMCLK(iLMEM_CLK),
-                .iLMEMSEL(lmem_thread_sel),
-                .iLMEMWREN(iLMEM_WR),
-                .iLMEMADDR(iLMEM_ADDR),
-                .oLMEMRDATA(lmem_out_data_mux[idx_thread]),
-                .iLMEMWDATA(iLMEM_WDATA),
+                .iLMEMCLK       (iLMEM_CLK),
+                .iLMEMSEL       (lmem_thread_sel),
+                .iLMEMWREN      (iLMEM_WR),
+                .iLMEMADDR      (iLMEM_ADDR),
+                .oLMEMRDATA     (lmem_out_data_mux[idx_thread]),
+                .iLMEMWDATA     (iLMEM_WDATA),
                 
-                .iGMEMDATA(iGMEM_WDATA),
+                .iGMEMDATA      (iGMEM_WDATA),
                 
-                .oBUSY(thread_0_calc_delay[idx_thread]) // For multi-cycle fpu
+                .oBUSY          (thread_0_calc_delay[idx_thread]) // For multi-cycle fpu
             );
         end
     endgenerate
