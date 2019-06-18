@@ -108,7 +108,7 @@ module GPPCU_THREAD (
         .iPB_ADDR   (exec_oprand_b),
         .iPB_WR     (cw_valid_exec & iCW_EXEC[CW_LMEM_WR] & exec_cond_verified), 
         .iPB_WDATA  (exec_oprand_a),
-        .oPB_RDATA  (wrbk_locmem_dat)
+        .oPB_RDATA  (wrbk_locmem_dat) // Data read performs unconditionally.
     ); 
     
     // -- Execution stage 

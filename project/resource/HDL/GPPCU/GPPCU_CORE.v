@@ -5,22 +5,22 @@ module GPPCU_CORE #
     NUM_THREAD = 32 /*32, Debug option for temporary*/
 )
 (
-    iACLK,          // Instruction should be valid on ACLK's rising edge.
-    inRST,
-    iINSTR,
-    iINSTR_VALID,
-    oINSTR_READY,   // Replaces instruction address. 
+    iACLK               ,          // Instruction should be valid on ACLK's rising edge.
+    inRST               ,
+    iINSTR              ,
+    iINSTR_VALID        ,
+    oINSTR_READY        ,   // Replaces instruction address. 
     
-    iLMEM_CLK,
-    iLMEM_THREAD_SEL, // Thread selection input
-    iLMEM_ADDR,
-    iLMEM_WDATA,
-    oLMEM_RDATA,
-    iLMEM_RD,
-    iLMEM_WR,
+    iLMEM_CLK           ,
+    iLMEM_THREAD_SEL    , // Thread selection input
+    iLMEM_ADDR          ,
+    iLMEM_WDATA         ,
+    oLMEM_RDATA         ,
+    iLMEM_RD            ,
+    iLMEM_WR            ,
     
-    oGMEM_ADDR,
-    iGMEM_WDATA,
+    oGMEM_ADDR          ,
+    iGMEM_WDATA         ,
     oGMEM_CLK
 );
     /// params
@@ -248,6 +248,9 @@ module GPPCU_CORE_testbench;
         2   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd1,   17'd15 };
         3   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd0,   7'd0,   5'd1 };
         4   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd2,   7'd0,   5'd1 };
+        // @todo. verify FPU state machine
+        // @todo. verify memory
+        // @todo. verify conditional execution
         default: iINSTR <= iINSTR;
     endcase
 endmodule
