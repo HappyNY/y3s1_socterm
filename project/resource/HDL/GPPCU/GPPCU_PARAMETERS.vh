@@ -88,4 +88,25 @@
         ALT_FPU_SUB  = 3'B110,
         ALT_FPU_ADD  = 3'B101
     ;
+    
+    // COND VERIFIERS
+    localparam[3:0]
+        COND_ALWAYS = 0,
+        COND_NEVER  = 1,
+        COND_C      = 2,
+        COND_NC     = 3,
+        COND_Z      = 4,
+        COND_NZ     = 5,
+        COND_V      = 6,
+        COND_NV     = 7,
+        COND_N      = 8,
+        COND_NN     = 9,
+        COND_NEG    = 10,
+        COND_POS    = 11,
+        COND_EQ     = 12,
+        COND_GR     = 13,
+        COND_LT     = 14
+        COND_RESERVED = 15
+    ;
+    
         

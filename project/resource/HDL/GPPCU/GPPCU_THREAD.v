@@ -111,11 +111,13 @@ module GPPCU_THREAD (
     
     // -- Execution stage
     reg  [ 4:0] wrbk_sreg;
+    reg  [ 4:0] exec_sreg;
     reg  [31:0] wrbk_alu_q, wrbk_fpu_q;
     reg  [ 4:0] wrbk_alu_sreg, wrbk_fpu_sreg; 
-    // wire        exec_cond_verified; // Use wrbk_sreg to judge validity. Declared in upper scope
+    wire        exec_cond_verified; // Use wrbk_sreg to judge validity. Declared in upper scope
     wire [31:0] alu_q, fpu_q;
     wire [ 4:0] alu_sreg, fpu_sreg;
+    wire [ 4:0] pending_sreg = iCW_EXEC[CW_FPOP] ? fpu_sreg : alu_sreg;
     assign fpu_sreg = 0; // No valid status register.
     
     // Unconditionally load to platform.
@@ -123,8 +125,9 @@ module GPPCU_THREAD (
     //which is managed from outside of this module.
     always @(posedge iACLK) begin
         wrbk_alu_q <= alu_q;
-        wrbk_alu_sreg <= alu_sreg;
-        wrbk_fpu_sreg <= fpu_sreg;
+        // wrbk_alu_sreg    <= alu_sreg;
+        // wrbk_fpu_sreg    <= fpu_sreg;
+        exec_sreg           <= exec_cond_verified & iINSTR_EXEC[INSTR_S] ? pending_sreg : exec_sreg;
     end
     
     // Single-cycle operation.
@@ -137,7 +140,10 @@ module GPPCU_THREAD (
         .iC(wrbk_sreg[SREG_C]),
         .iOP(iCW_EXEC[CW_ALOPC0+:4]),
         
-        .oVCNZ(alu_sreg),
+        .oV(alu_sreg[SREG_V]),
+        .oC(alu_sreg[SREG_C]),
+        .oN(alu_sreg[SREG_N]),
+        .oZ(alu_sreg[SREG_Z]),
         .oQ(alu_q)
     );
     
@@ -155,6 +161,11 @@ module GPPCU_THREAD (
     
     // @todo. Condtiion verifier logic
     // @ Generates enable/disable signal 
+    GPPCU_COND_VERIFIER GPPCU_COND_VERIFIER_inst(
+        .iCOND(iINSTR_EXEC[INSTR_COND_4+:4]),
+        .iSREG(wrbk_sreg),
+        .oVALID(exec_cond_verified)
+    );
     
     // Stall signal resolves automatically when the stage arrives DONE.
     assign fp_busy = fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
@@ -178,13 +189,13 @@ module GPPCU_THREAD (
             wrbk_fpu_q <= fpu_q;
         end
     endcase
-     
+    
     // Platform dependent module.
     // Uses altera's multicycled floating point unit.
     // To adopt multistage FPU on it, core should also be modified.
     // @Composite state machine which drives this fpu module
     assign oBUSY = fp_busy;
-    //**//* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
+    /**//* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
     GPPCU_MC_FPU GPPCU_MC_FPU_inst(
         .clk(iACLK),
         .clk_en(1'b1),
@@ -196,12 +207,11 @@ module GPPCU_THREAD (
         .start(fp_start),
         .done(fp_done),
         .result(fpu_q)
-    ); //*/
+    ); /**/
     
     // -- Writeback platform reg
     wire [31:0]  wrbk_q;
-    wire [ 4:0]  wrbk_pending_sreg; // @todo. mux sreg with 
-    // wire [31:0] wrbk_alu_q, wrbk_fpu_q ... delay mux to next pipeline, to reduce thruput...
+    wire [ 4:0]  wrbk_pending_sreg; // @todo. mux sreg with  
     assign wrbk_q               = iCW_WB[CW_FPOP] ? wrbk_fpu_q : wrbk_alu_q;
     assign wrbk_pending_sreg    = iCW_WB[CW_FPOP] ? wrbk_fpu_sreg : wrbk_alu_sreg;
     assign wrbk_reg_d           = iCW_WB[CW_LMEM_RD] ? wrbk_locmem_dat : wrbk_q;
@@ -209,7 +219,7 @@ module GPPCU_THREAD (
     // logics
     always @(posedge iACLK) begin
         wrbk_cond_verified      <= exec_cond_verified;
-        wrbk_sreg               <= iINSTR_WB[INSTR_S] & wrbk_cond_verified ? wrbk_pending_sreg : wrbk_sreg;
+        // wrbk_sreg               <= iINSTR_WB[INSTR_S] & wrbk_cond_verified ? wrbk_pending_sreg : wrbk_sreg;
     end
     
 endmodule
