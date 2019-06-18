@@ -22,8 +22,9 @@ module GPPCU_THREAD_REGBANK(
     reg     [31:0]      rg[31:0];
     
     // reads
-    assign oREGA = rg[iREGASEL];
-    assign oREGB = rg[iREGBSEL];
+    // enable preview.
+    assign oREGA = iWR && iREGASEL == iREGDSEL ? iREGD : rg[iREGASEL];
+    assign oREGB = iWR && iREGBSEL == iREGDSEL ? iREGD : rg[iREGBSEL];
     
     // writes
     always @(posedge iACLK) if(iWR) rg[iREGDSEL] <= iREGD;

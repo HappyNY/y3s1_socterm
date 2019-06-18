@@ -1,5 +1,6 @@
 module GPPCU_THREAD ( 
     iACLK,
+    inRST,
      
     iCW_DEC,
     iCW_EXEC,
@@ -25,7 +26,8 @@ module GPPCU_THREAD (
 
     // -- ports
     input                   iACLK;
-     
+    input                   inRST;
+    
     input   [CW_BITS-1:0]   iCW_DEC;
     input   [CW_BITS-1:0]   iCW_EXEC;
     input   [CW_BITS-1:0]   iCW_WB;
@@ -59,14 +61,14 @@ module GPPCU_THREAD (
     wire [31:0] wrbk_reg_d;
     
     GPPCU_THREAD_REGBANK GPPCU_THREAD_REGBANK_inst(
-        .iACLK(iACLK),
-        .iREGASEL(iINSTR_DEC[INSTR_REGA_5+:5]),
-        .iREGBSEL(iINSTR_DEC[INSTR_REGB_5+:5]),
-        .iREGDSEL(iINSTR_WB [INSTR_REGD_5+:5]), // FROM PIPE_WRBK
-        .oREGA(dec_reg_a),
-        .oREGB(dec_reg_b),
-        .iREGD(wrbk_reg_d),
-        .iWR(cw_valid_wb & iCW_WB[CW_REGWR] & wrbk_cond_verified)
+        .iACLK      (iACLK),
+        .iREGASEL   (iINSTR_DEC[INSTR_REGA_5+:5]),
+        .iREGBSEL   (iINSTR_DEC[INSTR_REGB_5+:5]),
+        .iREGDSEL   (iINSTR_WB [INSTR_REGD_5+:5]), // FROM PIPE_WRBK
+        .oREGA      (dec_reg_a),
+        .oREGB      (dec_reg_b),
+        .iREGD      (wrbk_reg_d),
+        .iWR        (cw_valid_wb & iCW_WB[CW_REGWR] & wrbk_cond_verified)
     );
     
     // -- Operand B Mux
@@ -95,64 +97,60 @@ module GPPCU_THREAD (
     ) DPRAM_PARAM_local_memory
     (
         // For external interface
-        .iPA_CLK(iLMEMCLK),
-        .iPA_ADDR(iLMEMADDR),
-        .iPA_WR(iLMEMWREN & iLMEMSEL), 
-        .iPA_WDATA(iLMEMWDATA),
-        .oPA_RDATA(oLMEMRDATA),    
+        .iPA_CLK    (iLMEMCLK),
+        .iPA_ADDR   (iLMEMADDR),
+        .iPA_WR     (iLMEMWREN & iLMEMSEL), 
+        .iPA_WDATA  (iLMEMWDATA),
+        .oPA_RDATA  (oLMEMRDATA),    
         
         // For internal use
-        .iPB_CLK(iACLK),
-        .iPB_ADDR(exec_oprand_b),
-        .iPB_WR(cw_valid_exec & iCW_EXEC[CW_LMEM_WR] & exec_cond_verified), 
-        .iPB_WDATA(exec_oprand_a),
-        .oPB_RDATA(wrbk_locmem_dat)
+        .iPB_CLK    (iACLK),
+        .iPB_ADDR   (exec_oprand_b),
+        .iPB_WR     (cw_valid_exec & iCW_EXEC[CW_LMEM_WR] & exec_cond_verified), 
+        .iPB_WDATA  (exec_oprand_a),
+        .oPB_RDATA  (wrbk_locmem_dat)
     ); 
     
-    // -- Execution stage
-    reg  [ 4:0] wrbk_sreg;
-    reg  [ 4:0] exec_sreg;
-    reg  [31:0] wrbk_alu_q, wrbk_fpu_q;
-    reg  [ 4:0] wrbk_alu_sreg, wrbk_fpu_sreg; 
-    wire        exec_cond_verified; // Use wrbk_sreg to judge validity. Declared in upper scope
+    // -- Execution stage 
+    reg  [ 4:0] exec_sreg = 0;
+    reg  [31:0] wrbk_alu_q = 0, wrbk_fpu_q = 0;  
     wire [31:0] alu_q, fpu_q;
-    wire [ 4:0] alu_sreg, fpu_sreg;
-    wire [ 4:0] pending_sreg = iCW_EXEC[CW_FPOP] ? fpu_sreg : alu_sreg;
-    assign fpu_sreg = 0; // No valid status register.
+    wire [ 4:0] alu_sreg, fpu_sreg/*No valid status register.*/;
+    assign fpu_sreg = 0;
+    wire [ 4:0] pending_sreg = iCW_EXEC[CW_FPOP] ? fpu_sreg : alu_sreg; 
     
     // Unconditionally load to platform.
     // Processings related to pipeline stall only depends on 'valid' bit,
     //which is managed from outside of this module.
     always @(posedge iACLK) begin
-        wrbk_alu_q <= alu_q;
-        // wrbk_alu_sreg    <= alu_sreg;
-        // wrbk_fpu_sreg    <= fpu_sreg;
-        exec_sreg           <= exec_cond_verified & iINSTR_EXEC[INSTR_S] ? pending_sreg : exec_sreg;
+        wrbk_alu_q <= alu_q; 
+        // wrbk_fpu_q is assigned from below.
+        exec_sreg  <= ~inRST ? 0 : cw_valid_exec & exec_cond_verified & iINSTR_EXEC[INSTR_S] ? pending_sreg : exec_sreg;
     end
     
     // Single-cycle operation.
     GPPCU_ALU #( 
-        .BW(32)
+        .BW     (32)
     ) GPPCU_ALU_inst
     (
-        .iA(exec_oprand_a),
-        .iB(exec_oprand_b),
-        .iC(wrbk_sreg[SREG_C]),
-        .iOP(iCW_EXEC[CW_ALOPC0+:4]),
+        .iA     (exec_oprand_a),
+        .iB     (exec_oprand_b),
+        .iC     (exec_sreg[SREG_C]),
+        .iOP    (iCW_EXEC[CW_ALOPC0+:4]),
         
-        .oV(alu_sreg[SREG_V]),
-        .oC(alu_sreg[SREG_C]),
-        .oN(alu_sreg[SREG_N]),
-        .oZ(alu_sreg[SREG_Z]),
-        .oQ(alu_q)
+        .oV     (alu_sreg[SREG_V]),
+        .oC     (alu_sreg[SREG_C]),
+        .oN     (alu_sreg[SREG_N]),
+        .oZ     (alu_sreg[SREG_Z]),
+        .oQ     (alu_q)
     );
     
     // -- FPU Drive logic
     wire        fp_busy;
     reg         fp_start;
     wire        fp_done;
-    reg[2:0]    fp_stage;
-    localparam [2:0]
+    reg[1:0]    fp_stage = 0;
+    localparam [1:0]
         FP_IDLE     = 0, 
         FP_RUN      = 1,
         FP_BUSY     = 2,
@@ -162,13 +160,13 @@ module GPPCU_THREAD (
     // @todo. Condtiion verifier logic
     // @ Generates enable/disable signal 
     GPPCU_COND_VERIFIER GPPCU_COND_VERIFIER_inst(
-        .iCOND(iINSTR_EXEC[INSTR_COND_4+:4]),
-        .iSREG(wrbk_sreg),
-        .oVALID(exec_cond_verified)
+        .iCOND      (iINSTR_EXEC[INSTR_COND_4+:4]),
+        .iSREG      (exec_sreg),
+        .oVALID     (exec_cond_verified)
     );
     
     // Stall signal resolves automatically when the stage arrives DONE.
-    assign fp_busy = fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
+    assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
     
     // No reset logic. Always wait for calculation done
     always @(posedge iACLK) case(fp_stage)
@@ -195,31 +193,28 @@ module GPPCU_THREAD (
     // To adopt multistage FPU on it, core should also be modified.
     // @Composite state machine which drives this fpu module
     assign oBUSY = fp_busy;
-    /**//* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
+    /* ##NOTICE## DISABLE UNTILE THE PIPELINE LOGIC VERIFIED!!!! TO MUCH TIME COST ...
     GPPCU_MC_FPU GPPCU_MC_FPU_inst(
-        .clk(iACLK),
-        .clk_en(1'b1),
-        .dataa(exec_oprand_a),
-        .datab(exec_oprand_b),
-        .n(iCW_EXEC[CW_FPOPC0+:3]),
-        .reset(0),
-        .reset_req(0),
-        .start(fp_start),
-        .done(fp_done),
-        .result(fpu_q)
-    ); /**/
+        .clk        (iACLK),
+        .clk_en     (1'b1),
+        .dataa      (exec_oprand_a),
+        .datab      (exec_oprand_b),
+        .n          (iCW_EXEC[CW_FPOPC0+:3]),
+        .reset      (0),
+        .reset_req  (0),
+        .start      (fp_start),
+        .done       (fp_done),
+        .result     (fpu_q)
+    ); / */
+    assign fp_done = 1;
+    //*/
     
     // -- Writeback platform reg
-    wire [31:0]  wrbk_q;
-    wire [ 4:0]  wrbk_pending_sreg; // @todo. mux sreg with  
-    assign wrbk_q               = iCW_WB[CW_FPOP] ? wrbk_fpu_q : wrbk_alu_q;
-    assign wrbk_pending_sreg    = iCW_WB[CW_FPOP] ? wrbk_fpu_sreg : wrbk_alu_sreg;
+    wire [31:0]  wrbk_q; 
+    assign wrbk_q               = iCW_WB[CW_FPOP] ? wrbk_fpu_q : wrbk_alu_q; 
     assign wrbk_reg_d           = iCW_WB[CW_LMEM_RD] ? wrbk_locmem_dat : wrbk_q;
     
     // logics
-    always @(posedge iACLK) begin
-        wrbk_cond_verified      <= exec_cond_verified;
-        // wrbk_sreg               <= iINSTR_WB[INSTR_S] & wrbk_cond_verified ? wrbk_pending_sreg : wrbk_sreg;
-    end
+    always @(posedge iACLK) wrbk_cond_verified      <= exec_cond_verified;
     
 endmodule

@@ -32,7 +32,7 @@ module GPPCU_INSTR_DEC (
         XOR   : oCW <= 'b__1_1_0_1_0_0_xxxx_0111_01_0_1;
         ADI   : oCW <= 'b__1_0_0_1_0_0_xxxx_1000_10_0_1;
         SBI   : oCW <= 'b__1_0_0_1_0_0_xxxx_1001_10_0_1;
-        MVI   : oCW <= 'b__0_0_0_1_0_0_xxxx_1010_11_0_1;
+        MVI   : oCW <= 'b__0_0_0_1_0_0_xxxx_1010_10_0_1;
         LSL   : oCW <= 'b__1_0_0_1_0_0_xxxx_1011_xx_0_1;
         LSR   : oCW <= 'b__1_0_0_1_0_0_xxxx_1100_xx_0_1;
         ASR   : oCW <= 'b__1_0_0_1_0_0_xxxx_1101_xx_0_1;
@@ -45,7 +45,7 @@ module GPPCU_INSTR_DEC (
         FNEG  : oCW <= 'b__0_0_1_0_0_0_xxxx_xxxx_00_0_0;
         FSQRT : oCW <= 'b__0_0_1_0_0_0_x011_xxxx_00_0_0;
         LDL   : oCW <= 'b__1_1_0_0_1_0_xxxx_xxxx_00_0_1;
-        LDCI  : oCW <= 'b__0_0_0_0_0_0_xxxx_xxxx_11_1_1;
+        LDCI  : oCW <= 'b__0_0_0_1_0_0_xxxx_0001_11_1_1; // Move operation
         STL   : oCW <= 'b__1_1_0_0_0_1_xxxx_xxxx_00_0_0;
         default: oCW <= 0;
         endcase 

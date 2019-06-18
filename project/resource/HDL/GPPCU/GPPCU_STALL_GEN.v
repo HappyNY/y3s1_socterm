@@ -23,7 +23,7 @@ module GPPCU_STALL_GEN #
     // -- ports
     input                   iACLK;
     input                   inRST;
-    input                   iREGD;
+    input   [RBW-1:0]       iREGD;
     input   [RBW-1:0]       iREGA;
     input   [RBW-1:0]       iREGB;
     input                   iVALID_REGD;
@@ -48,9 +48,9 @@ module GPPCU_STALL_GEN #
     generate 
         genvar i;
         for(i = 0; i < NUMREG; i = i + 1) begin : SELECT
-            wire outsig = ~iWRREG_VALID | (i == iWRREG);
+            wire outsig = iWRREG_VALID & (i == iWRREG);
             wire insig  = oENABLED && iVALID_REGD && i == iREGD; 
-            assign pending_occupy[i] = (occupied[i] | insig) & outsig;
+            assign pending_occupy[i] = (occupied[i] | insig) & ~outsig;
             
             always @(posedge iACLK) begin
                 if(~inRST)

@@ -105,7 +105,7 @@
         COND_POS    = 11,
         COND_EQ     = 12,
         COND_GR     = 13,
-        COND_LT     = 14
+        COND_LT     = 14,
         COND_RESERVED = 15
     ;
     
