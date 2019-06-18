@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY GPPCU_CORE
+set_global_assignment -name TOP_LEVEL_ENTITY TOP
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.0.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "20:43:51  JANUARY 05, 2019"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.0.0 Lite Edition"
@@ -338,6 +338,35 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name EDA_TIME_SCALE "1 ns" -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT NONE -section_id eda_simulation
+set_global_assignment -name VERILOG_FILE resource/TOP.v
+set_global_assignment -name QSYS_FILE resource/QSYS/SYSTEM.qsys
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_TEST_QUEUE.v
+set_global_assignment -name QIP_FILE resource/GENERATED/GPPCU_MC_FPU/synthesis/GPPCU_MC_FPU.qip
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_COND_VERIFIER.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_THREAD_REGBANK.v
+set_global_assignment -name VERILOG_FILE resource/HDL/DEVICE_INDEPENDENT/DPRAM_PARAM.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/PRIOIRTY_ENCODER_PARAM.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_THREAD.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_STALL_GEN.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_INSTR_QUEUE.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_INSTR_DEC.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_FPU_MULTICYCLE.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_CORE.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_ALU.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/ENCODER_PARAM.v
+set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/DECODER_PARAM.v
+set_global_assignment -name VERILOG_FILE resource/HDL/LCD/LCD_CON.v
+set_global_assignment -name VERILOG_FILE resource/HDL/LCD/LCD.v
+set_global_assignment -name QIP_FILE resource/GENERATED/BUFFER_TFT.qip
+set_global_assignment -name QIP_FILE resource/GENERATED/SDRAM_PLL.qip
+set_global_assignment -name TEXT_FILE resource/DOC/note.txt
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQM[0]
@@ -395,30 +424,4 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[9]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[10]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[11]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[12]
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_COND_VERIFIER.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU.v
-set_global_assignment -name QSYS_FILE resource/GENERATED/GPPCU_MC_FPU.qsys
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_THREAD_REGBANK.v
-set_global_assignment -name VERILOG_FILE resource/HDL/DEVICE_INDEPENDENT/DPRAM_PARAM.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/PRIOIRTY_ENCODER_PARAM.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_THREAD.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_STALL_GEN.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_INSTR_QUEUE.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_INSTR_DEC.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_FPU_MULTICYCLE.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_CORE.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/GPPCU_ALU.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/ENCODER_PARAM.v
-set_global_assignment -name VERILOG_FILE resource/HDL/GPPCU/DECODER_PARAM.v
-set_global_assignment -name VERILOG_FILE resource/HDL/LCD/LCD_CON.v
-set_global_assignment -name VERILOG_FILE resource/HDL/LCD/LCD.v
-set_global_assignment -name QIP_FILE resource/GENERATED/BUFFER_TFT.qip
-set_global_assignment -name QIP_FILE resource/GENERATED/SDRAM_PLL.qip
-set_global_assignment -name TEXT_FILE resource/DOC/note.txt
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
-set_global_assignment -name EDA_TIME_SCALE "1 ns" -section_id eda_simulation
-set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
