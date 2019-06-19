@@ -1,5 +1,7 @@
 #pragma once
 #include <stdint.h>
+#include <system.h>
+#include <altera_avalon_pio_regs.h>
 
 enum Opr
 {
@@ -50,6 +52,30 @@ enum Cond
 };
 
 #define GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) (((uint32_t)(COND) << 28) | ((uint32_t)(OPR) << 23) | ((uint32_t)(S_EN) << 22))
-#define GPPCU_ASSEMBLE_INSTRUCTION_A(COND, OPR, S_EN, RD, RA, IMM7, RB) (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((RA) << 12) | (((IMM7) & 0x7f) << 5) | (RB))
-#define GPPCU_ASSEMBLE_INSTRUCTION_B(COND, OPR, S_EN, RD, RA, IMM12) (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((RA) << 12) | ((IMM12) & 0x0fff))
-#define GPPCU_ASSEMBLE_INSTRUCTION_C(COND, OPR, S_EN, RD, IMM17) (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((IMM17) & 0x1ffff))
+#define GPPCU_ASSEMBLE_INSTRUCTION_A(COND, OPR, S_EN, RD, RA, IMM7, RB)\
+    (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((RA) << 12) | (((IMM7) & 0x7f) << 5) | (RB))
+
+#define GPPCU_ASSEMBLE_INSTRUCTION_B(COND, OPR, S_EN, RD, RA, IMM12) \
+    (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((RA) << 12) | ((IMM12) & 0x0fff))
+
+#define GPPCU_ASSEMBLE_INSTRUCTION_C(COND, OPR, S_EN, RD, IMM17) \
+    (uint32_t)(GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) | ((RD) << 17) | ((IMM17) & 0x1ffff))
+
+
+typedef struct tagGPPCU
+{
+    uint32_t*   __parr; 
+    int32_t     __cap; 
+    int32_t     __num; 
+    int32_t     space_per_task;
+    int32_t     num_threads;
+} swk_gppcu_stat;
+
+void gppcu_init(swk_gppcu_stat* pp, int32_t MaxInstr);
+void gppcu_destroy(swk_gppcu_stat* pp);
+void gppcu_program_queue_device(swk_gppcu_stat const* pp);
+void gppcu_program_autofeed_device(swk_gppcu_stat const* pp);
+
+void gppcu_clear(swk_gppcu_stat const* pp);
+
+void gppcu_();
