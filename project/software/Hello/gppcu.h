@@ -83,13 +83,17 @@ struct tagGPPCU
 	int32_t     ro_taskmaxcycle;
     int32_t     ro_numtask;
 	int32_t 	ro_max_word_per_thread;
+
+    void* MMAP_DATOUT;
+    void* MMAP_DATIN;
+    void* MMAP_CMDOUT; 
 };
 typedef struct tagGPPCU swk_gppcu;
 
 ////////////////////////////////////////////////////////
 // INTERFACE
 ////////////////////////////////////////////////////////
-void gppcu_init(swk_gppcu* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread);
+void gppcu_init(swk_gppcu* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread); 
 void gppcu_destroy(swk_gppcu* const pp);
 void gppcu_program_autofeed_device(swk_gppcu const* const pp);
 void gppcu_run_autofeed_device();

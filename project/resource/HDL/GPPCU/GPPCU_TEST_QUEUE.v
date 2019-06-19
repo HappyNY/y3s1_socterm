@@ -156,8 +156,7 @@ module GPPCU_TEST_QUEUE #(
         if(pmem_running & inRST) begin
             if(cur_cycle_idx == num_cycles) begin
                 program_done <= pmem_running;
-                // to generate instr_invalid signal.
-                pmem_head <= pmem_end;
+                // to generate instr_invalid signal. 
             end
             else if(pmem_head < pmem_end) begin
                 if(instr_ready) begin
@@ -197,7 +196,7 @@ module GPPCU_TEST_QUEUE #(
     ); 
     
     assign iGMEM_WDATA = oGMEM_ADDR == 0 ? cur_task_ofst : gmem_dat;
-    assign instr_valid = pmem_running && !program_done && pmem_head < pmem_end;
+    assign instr_valid = pmem_running && !program_done && pmem_head != pmem_end;
     always oDATA <= wparam == OPR_COMMAND ? status : data_out;
     
     // -- core

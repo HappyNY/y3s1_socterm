@@ -9,43 +9,43 @@ enum { GPPCU_CMD_WR =  2 };\
 enum { GPPCU_CMD_STAT =  4 };\
 enum { GPPCU_CMD_CLK =  (1 << 31) };
 
-static inline void gppcu_push_instr( uint32_t instr )
+static inline void gppcu_push_instr( void* DATOUT, void* CMDOUT, uint32_t instr )
 {
     GPPCU_PARAMTERS;
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_DATAOUT_BASE, instr );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, 0 );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, GPPCU_CMD_CLK );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, 0 );
+    IOWR_ALTERA_AVALON_PIO_DATA( DATOUT, instr );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, 0 );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, GPPCU_CMD_CLK );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, 0 );
 }
 
-static inline uint32_t gppcu_data_rd( int ThreadIdx, int WordIdx )
+static inline uint32_t gppcu_data_rd( void* DATIN, void* CMDOUT, int ThreadIdx, int WordIdx )
 {
     GPPCU_PARAMTERS;
     uint32_t cmd = ( GPPCU_CMD_RD << 24 ) | ( ThreadIdx << 16 ) | ( WordIdx );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, cmd );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, GPPCU_CMD_CLK | cmd );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, ~GPPCU_CMD_CLK & cmd );
-    return IORD_ALTERA_AVALON_PIO_DATA( PIO_DATAIN_BASE );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, cmd );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, GPPCU_CMD_CLK | cmd );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, ~GPPCU_CMD_CLK & cmd );
+    return IORD_ALTERA_AVALON_PIO_DATA( DATIN );
 }
 
-static inline void gppcu_data_wr( int ThreadIdx, int WordIdx, uint32_t Data )
+static inline void gppcu_data_wr( void* DATOUT, void* CMDOUT, int ThreadIdx, int WordIdx, uint32_t Data )
 {
     GPPCU_PARAMTERS;
     uint32_t cmd = ( GPPCU_CMD_WR << 24 ) | ( ThreadIdx << 16 ) | ( WordIdx );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_DATAOUT_BASE, Data );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, cmd );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, GPPCU_CMD_CLK | cmd );
-    IOWR_ALTERA_AVALON_PIO_DATA( PIO_CMD_BASE, ~GPPCU_CMD_CLK & cmd );
+    IOWR_ALTERA_AVALON_PIO_DATA( DATOUT, Data );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, cmd );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, GPPCU_CMD_CLK | cmd );
+    IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, ~GPPCU_CMD_CLK & cmd );
 } 
 
-void gppcu_device_command(uint8_t lparam, uint16_t command)
+void gppcu_device_command( void* CMDOUT, uint8_t lparam, uint16_t command)
 {
     GPPCU_PARAMTERS;
     
 	uint32_t cmd = (GPPCU_CMD_STAT << 24) | (lparam << 16) | command;
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, GPPCU_CMD_CLK | cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, ~GPPCU_CMD_CLK | cmd); 
+	IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, cmd);
+	IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, GPPCU_CMD_CLK | cmd);
+	IOWR_ALTERA_AVALON_PIO_DATA( CMDOUT, ~GPPCU_CMD_CLK | cmd);
 } 
 
 void gppcu_stat( BOOL* poIsRunning, BOOL* poIsDone, uint8_t* poSzPerTask, uint8_t* poPmemEnd, uint8_t* poPmemHead, uint8_t* poNumCycles, uint8_t* poCurCycleIdx )
@@ -75,12 +75,12 @@ void gppcu_init(swk_gppcu* const pp, int32_t num_threads, int32_t Capacity, int3
     pp->mtaskmem = 0;
 	pp->ro_numtask = 0;
 	pp->ro_max_word_per_thread = MaxWordPerThread;
-}
+} 
 
 void gppcu_init_task(swk_gppcu *const pp, uint8_t WordsPerTask, uint16_t NumTasks)
 {
 	pp->ro_numtask = NumTasks;
-	pp->mtaskcycle = NumTasks / pp->mnumthr + 1;
+    pp->mtaskcycle = ( NumTasks - 1 ) / pp->mnumthr + 1;
 	pp->mtaskmem = WordsPerTask;
 	pp->ro_taskmaxcycle = pp->ro_max_word_per_thread / WordsPerTask;
 	passert(NumTasks < pp->ro_taskmaxcycle * pp->mnumthr, "Task number has set too many.");
@@ -104,17 +104,17 @@ void gppcu_program_autofeed_device( swk_gppcu const* const pp )
     };
 
     // Reset device
-    gppcu_device_command( LPM_RESETPRG, 0 );
-    gppcu_device_command( LPM_SZPERCYCLE, pp->mtaskmem );
-    gppcu_device_command( LPM_NUMCYCLE, pp->mtaskcycle );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_RESETPRG, 0 );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, pp->mtaskcycle );
 
     // Push program
     while ( lphead < lpend ) { 
-        gppcu_push_instr( *lphead++ );
+        gppcu_push_instr( pp->MMAP_DATOUT, pp->MMAP_CMDOUT, *lphead++ );
     }
 
     // Run
-    gppcu_device_command( LPM_RUNSTOP, 1 );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_RUNSTOP, 1 );
 }
 
 void gppcu_clear_instr( swk_gppcu* const pp )
@@ -143,7 +143,7 @@ void gppcu_write(
         int elem_idx;
         for( elem_idx = 0; elem_idx < ElementSizeInWords; ++elem_idx ) 
         {
-            gppcu_data_wr(idx_thread, cycle_based_offset + ofst + elem_idx, *head++);
+            gppcu_data_wr(pp->MMAP_DATOUT, pp->MMAP_CMDOUT, idx_thread, cycle_based_offset + ofst + elem_idx, *head++);
         }
 
 		++idx_thread;
@@ -186,7 +186,7 @@ void gppcu_read(
         // write task_data 
         for ( elem_idx = 0; elem_idx < ElementSizeInWords; ++elem_idx )
         {
-            *head++ = gppcu_data_rd( idx_thread, cycle_based_offset + ofst + elem_idx );
+            *head++ = gppcu_data_rd( pp->MMAP_DATIN, pp->MMAP_CMDOUT, idx_thread, cycle_based_offset + ofst + elem_idx );
         }
 
         ++idx_thread;
@@ -202,11 +202,11 @@ void gppcu_read(
 
 void gppcu_data_wr_slow( int ThreadIdx, int WordIdx, uint32_t Data )
 {
-    gppcu_data_wr( ThreadIdx, WordIdx, Data );
+    gppcu_data_wr( PIO_DATAOUT_BASE, PIO_CMD_BASE, ThreadIdx, WordIdx, Data );
 }
 
 uint32_t gppcu_data_rd_slow( int ThreadIdx, int WordIdx )
 {
-    return gppcu_data_rd( ThreadIdx, WordIdx );
+    return gppcu_data_rd( PIO_CMD_BASE, PIO_CMD_BASE, ThreadIdx, WordIdx );
 }
 

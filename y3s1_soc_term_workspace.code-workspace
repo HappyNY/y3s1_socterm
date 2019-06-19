@@ -25,7 +25,8 @@
 			"xutility": "c",
 			"altera_avalon_pio_regs.h": "c",
 			"nios2.h": "c",
-			"gppcu.h": "c"
+			"gppcu.h": "c",
+			"stdint.h": "c"
 		}
 	}
 }

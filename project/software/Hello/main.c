@@ -19,7 +19,7 @@ void wait(int val)
 	}
 }
 
-void display_stat()
+BOOL display_stat()
 {
     BOOL prun, pdone;
     uint8_t szpertask, popmemend, popmemhead, ponumcycles, pocurcycleidx;
@@ -32,52 +32,13 @@ void display_stat()
         "cycle: %d/%d \n",
         prun, pdone, szpertask, popmemhead, popmemend, pocurcycleidx, ponumcycles
     );
+    return pdone;
 }
 
 int main()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
-    
-    /**//*
-    int trial = 0;
-    while ( TRUE )
-    {
-        printf( "TRIAL %d\n", ++trial );
-        float v[100];
-        int i = 0;
-        for ( ; i < countof( v ); ++i )
-        {
-            v[i] = (float) i;
-        }
-
-        swk_gppcu gppcu;
-        gppcu_init( &gppcu, 24, 8192, 512 );
-        gppcu_init_task( &gppcu, 16, 25 );
-        gppcu_write( &gppcu, v, 4, 0 );
-
-        float result[100];
-        gppcu_read( &gppcu, v, countof( result ), 4, 0 );
-
-        for ( i = 0; i < 10; ++i )
-        {
-            int j = 0;
-
-            printf( "element %d ~ \n", i );
-            for ( ; j < 10; ++j ) {
-                printf( "%04.4f ", v[i * 10 + j] );
-            }
-            printf( "\n" );
-            for ( ; j < 10; ++j ) {
-                printf( "%04.4f ", result[i * 10 + j] );
-            }
-            printf( "\n" );
-        }
-
-        wait( 30000000 );
-    }
-
-    while ( 1 );
-    /*/
+      
 #define INSTR_BUNDLE \
 	    GPPCU_ASSEMBLE_INSTRUCTION_C(COND_ALWAYS, OPR_C_MVI, FALSE, 0x1, 0),                 \
     GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_C_MVI, FALSE, 0x2, 0 ),                   \
@@ -93,33 +54,14 @@ int main()
     uint32_t instrs[] = 
     {
         INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
-        INSTR_BUNDLE
     };
+
     swk_gppcu gppcu;
+
+    gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
+    gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
+    gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
+
     gppcu_init( &gppcu, 24, 1024, 512 );
     gppcu_init_task( &gppcu, 16, 24 );
     memcpy( gppcu.marr, instrs, sizeof( instrs ) );
@@ -143,8 +85,8 @@ int main()
 		}
 		
         gppcu_program_autofeed_device( &gppcu );
-        display_stat(); 
-            wait(5000000); 
+        while ( !display_stat() ); 
+        wait( 5000000 );
         
         for(int rot = 0; rot < max_rot; ++rot)
         {
