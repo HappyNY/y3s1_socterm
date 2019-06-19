@@ -2,6 +2,7 @@
 module GPPCU_TEST_QUEUE #(
     parameter
     QBW                 = 10,
+    GBW                 = 10,
     NUM_THREAD          = 24
 )
 (
@@ -36,10 +37,12 @@ module GPPCU_TEST_QUEUE #(
     output              oDONE;
     
     // -- regs    
-    wire    [16:0]      oGMEM_ADDR          ;
-    reg     [31:0]      iGMEM_WDATA         ;
-    wire                oGMEM_CLK           ;
     reg     [31:0]      oDATA               ;
+    
+    // -- nets
+    wire    [16:0]      oGMEM_ADDR          ;
+    wire    [31:0]      iGMEM_WDATA         ;
+    wire                oGMEM_CLK           ;
     
     // -- parameter
     localparam 
@@ -83,6 +86,23 @@ module GPPCU_TEST_QUEUE #(
         .oPB_RDATA   (queue_dat)
     ); 
     
+    DPRAM_PARAM #( 
+        .DBW         (32), 
+        .DEPTH       (1 << GBW)
+    ) DPRAM_PARAM_queue
+    (
+        .iPA_CLK     (opclk),
+        .iPA_ADDR    (queue_head),
+        .iPA_WR      (wparam == OPR_WRG), 
+        .iPA_WDATA   (iDATA),
+        .oPA_RDATA   (),
+        .iPB_CLK     (oGMEM_CLK),
+        .iPB_ADDR    (oGMEM_ADDR),
+        .iPB_WR      (0), 
+        .iPB_WDATA   (0),
+        .oPB_RDATA   (iGMEM_WDATA)
+    ); 
+    
     // -- output data logic
     wire [15:0] upper = queue_head;
     wire [15:0] lower = queue_tail;
@@ -92,7 +112,7 @@ module GPPCU_TEST_QUEUE #(
         default : oDATA <= data_out;
     endcase
     
-    assign  instr_valid = queue_head != queue_tail;
+    assign  instr_valid = queue_head != queue_tail && queue_head - 1 != queue_tail;
     assign  oFULL = queue_head == queue_tail - 1;
     assign  oDONE = queue_head == queue_tail && gppcu_idle;
     
