@@ -84,9 +84,9 @@ struct tagGPPCU
     int32_t     ro_numtask;
 	int32_t 	ro_max_word_per_thread;
 
-    void* MMAP_DATOUT;
-    void* MMAP_DATIN;
-    void* MMAP_CMDOUT; 
+    uint32_t    MMAP_DATOUT;
+    uint32_t    MMAP_DATIN;
+    uint32_t    MMAP_CMDOUT; 
 };
 typedef struct tagGPPCU swk_gppcu;
 
