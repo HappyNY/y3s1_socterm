@@ -97,11 +97,11 @@ module GPPCU_TEST_QUEUE #(
     assign oDONE            = program_done;
     assign status[31]       = pmem_running;
     assign status[30]       = program_done;
-    assign status[29:24]    = sz_per_task[0+:6];
-    assign status[23:16]    = pmem_end[QBW-1-:8];
-    assign status[15: 8]    = pmem_head[QBW-1-:8];
-    assign status[ 7: 4]    = num_cycles   [0+:4];
-    assign status[ 3: 0]    = cur_cycle_idx[0+:4];
+    assign status[29:24]    = sz_per_task   [0+:6];
+    assign status[23:16]    = pmem_end      [0+:8];
+    assign status[15: 8]    = pmem_head     [0+:8];
+    assign status[ 7: 4]    = num_cycles    [0+:4];
+    assign status[ 3: 0]    = cur_cycle_idx [0+:4];
     
     DPRAM_PARAM #( 
         .DBW         (32), 
@@ -151,6 +151,7 @@ module GPPCU_TEST_QUEUE #(
         end
     end
     
+    // -- instruction supply logic
     always @(posedge iACLK) begin
         if(pmem_running & inRST) begin
             if(cur_cycle_idx == num_cycles) begin
@@ -170,9 +171,10 @@ module GPPCU_TEST_QUEUE #(
             end
         end
         else begin
-            pmem_head <= 0;
-            cur_task_ofst <= 0;
-            cur_cycle_idx <= 0;
+            program_done    <= 0;
+            pmem_head       <= 0;
+            cur_task_ofst   <= 0;
+            cur_cycle_idx   <= 0;
         end
     end
     
@@ -223,6 +225,14 @@ module GPPCU_TEST_QUEUE #(
     );
 endmodule
 
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// TESTBENCH
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 `timescale 1ns/1ns
 module GPPCU_TEST_QUEUE_testbench;
     `include "GPPCU_PARAMETERS.vh"
