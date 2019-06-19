@@ -41,9 +41,9 @@ module GPPCU_TEST_QUEUE(
     ;
     
     // -- routing
-    wire                opclk = iCMD[31];
-    wire    [ 6:0]      wparam = iCMD[30:24];
-    wire    [ 7:0]      lparam = iCMD[23:16];
+    wire                opclk   = iCMD[31];
+    wire    [ 6:0]      wparam  = iCMD[30:24];
+    wire    [ 7:0]      lparam  = iCMD[23:16];
     wire    [15:0]      command = iCMD[15:0];
     
     wire                instr_ready;

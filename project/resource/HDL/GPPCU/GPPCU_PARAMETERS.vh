@@ -1,10 +1,7 @@
     // control word definition
-    localparam
-        DBW = 32,
-        ABW = 22,       // Address bitwidth
-        TBW = DBW-ABW   // Thread selection bitwidth
-    ; 
-        
+    localparam DBW = 32, ABW = 22;  // Data bitwidth, Address bitwidth
+    localparam TBW = DBW-ABW;       // Thread selection bitwidth
+ 
     localparam 
         INSTR_IMM0_7    =  5,
         INSTR_IMM1_12   =  0,

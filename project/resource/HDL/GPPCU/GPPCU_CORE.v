@@ -32,10 +32,10 @@ module GPPCU_CORE #
     input                   inRST;
     input   [DBW-1:0]       iINSTR;
     input                   iINSTR_VALID;
-    output                  oINSTR_READY; // Replaces instruction address. 
+    output                  oINSTR_READY;       // Notify this module is ready to take next instr.
     
 	input                   iLMEM_CLK;
-    input   [TBW-1:0]       iLMEM_THREAD_SEL; // Thread selection input
+    input   [TBW-1:0]       iLMEM_THREAD_SEL;   // Thread selection input
     input   [ABW-1:0]       iLMEM_ADDR;
     input   [DBW-1:0]       iLMEM_WDATA;
     output  [DBW-1:0]       oLMEM_RDATA;
@@ -137,9 +137,9 @@ module GPPCU_CORE #
     assign oGMEM_ADDR = instr_fetch[INSTR_IMM2_17+:17];
     
     // Thread instances
-    wire[NUM_THREAD-1:0] thread_0_calc_delay; // Only first wire in vector will be used.
+    wire[NUM_THREAD-1:0] thread_calc_delay; // Only first wire in vector will be used.
     wire[DBW-1:0] lmem_out_data_mux[NUM_THREAD-1:0];
-    assign on_calculation_delay = thread_0_calc_delay[0];
+    assign on_calculation_delay = |thread_calc_delay;
     assign oLMEM_RDATA = lmem_out_data_mux[iLMEM_THREAD_SEL];
     
     generate
@@ -177,7 +177,7 @@ module GPPCU_CORE #
                 
                 .iGMEMDATA      (iGMEM_WDATA),
                 
-                .oBUSY          (thread_0_calc_delay[idx_thread]) // For multi-cycle fpu
+                .oBUSY          (thread_calc_delay[idx_thread]) // For multi-cycle fpu
             );
         end
     endgenerate
