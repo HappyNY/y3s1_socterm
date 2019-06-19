@@ -101,7 +101,7 @@ module GPPCU_TEST_QUEUE #(
     assign status[23:16]    = pmem_end[QBW-1-:8];
     assign status[15: 8]    = pmem_head[QBW-1-:8];
     assign status[ 7: 4]    = num_cycles   [0+:4];
-    assign status[ 3: 0]    = cur_cycle_idx[0+:4];
+    assign status[ 0: 3]    = cur_cycle_idx[0+:4];
     
     DPRAM_PARAM #( 
         .DBW         (32), 
