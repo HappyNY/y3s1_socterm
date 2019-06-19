@@ -64,7 +64,8 @@ module GPPCU_TEST_QUEUE #(
     // -- instruction queue  
     reg     [QBW-1:0]      queue_head;
     reg     [QBW-1:0]      queue_tail;
-    wire    [31:0]      queue_dat;
+    wire    [31:0]          queue_dat;
+    
     DPRAM_PARAM #( 
         .DBW         (32), 
         .DEPTH       (1 << QBW)
