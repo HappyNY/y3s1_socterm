@@ -17,48 +17,6 @@ void wait(int val)
 	}
 }
 
-#define CMD_RD 1
-#define CMD_WR 2
-#define CMD_STAT 4
-#define CMD_CLK (1 << 31)
-
-static inline void gppcu_queue_instr(uint32_t instr)
-{  
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_DATAOUT_BASE, instr);
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, 0); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, CMD_CLK); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, 0);  
-} 
-
-static inline uint32_t gppcu_data_rd(int ThreadIdx, int WordIdx)
-{
-	uint32_t cmd = (CMD_RD << 24) | (ThreadIdx << 16) | (WordIdx);
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, CMD_CLK|cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, ~CMD_CLK&cmd); 
-	return IORD_ALTERA_AVALON_PIO_DATA(PIO_DATAIN_BASE);
-}
-
-static inline void gppcu_data_wr(int ThreadIdx, int WordIdx, uint32_t Data)
-{
-	uint32_t cmd = (CMD_WR << 24) | (ThreadIdx << 16) | (WordIdx);
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_DATAOUT_BASE, Data); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, CMD_CLK|cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, ~CMD_CLK&cmd);  
-}
-
-void QueueStat(uint16_t* phead, uint16_t* ptail)
-{
-	uint32_t cmd = (CMD_STAT << 24);
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, CMD_CLK | cmd); 
-	IOWR_ALTERA_AVALON_PIO_DATA(PIO_CMD_BASE, ~CMD_CLK | cmd); 
-	uint32_t ret = IORD_ALTERA_AVALON_PIO_DATA(PIO_DATAIN_BASE);
-    *phead = ((uint16_t*)&ret)[1];
-    *ptail = ((uint16_t*)&ret)[0];
-}
-
 int main()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
@@ -109,7 +67,7 @@ int main()
 		}
         {
             uint16_t head, tail;
-            QueueStat(&head, &tail);
+            gppcu_stat_queue(&head, &tail);
             printf("stat queue ... h: %d, t: %d\n", head, tail);
             wait(5000000);
         }

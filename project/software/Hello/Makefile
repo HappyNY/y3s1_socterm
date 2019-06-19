@@ -144,6 +144,7 @@ ELF := hello.elf
 # Paths to C, C++, and assembly source files.
 C_SRCS += main.c
 C_SRCS += gppcu.c
+C_SRCS += utils.c
 CXX_SRCS :=
 ASM_SRCS :=
 
