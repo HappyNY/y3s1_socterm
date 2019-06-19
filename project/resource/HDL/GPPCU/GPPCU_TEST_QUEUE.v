@@ -1,7 +1,8 @@
 // Test module which contains instruction queue
 module GPPCU_TEST_QUEUE #(
     parameter
-    QBW                 = 10
+    QBW                 = 10,
+    NUM_THREAD          = 24
 )
 (
     iACLK               ,
@@ -119,9 +120,9 @@ module GPPCU_TEST_QUEUE #(
     // @todo. Resolve invalid data read/write operation for thread 0 and 1.
     // -- core
     GPPCU_CORE # (
-        .NUM_THREAD (24),
+        .NUM_THREAD (NUM_THREAD),
         .WORD_BW    (9)
-    )
+    ) GPPCU_CORE_inst
     (
         .iACLK               (iACLK),          // Instruction should be valid on ACLK's rising edge.
         .inRST               (inRST),
@@ -142,21 +143,22 @@ module GPPCU_TEST_QUEUE #(
     );
 endmodule
 
-
+`timescale 1ns/1ns
 module GPPCU_TEST_QUEUE_testbench;
     `include "GPPCU_PARAMETERS.vh"
     
     // -- ports 
-    reg               iACLK;
+    reg               iACLK = 0;
     reg               inRST;
-    reg   [31:0]      iCMD;
+    wire  [31:0]      iCMD;
     reg   [31:0]      iDATA;
     wire  [31:0]      oDATA;
     wire              oFULL;
     wire              oDONE; 
     
     GPPCU_TEST_QUEUE #( 
-        QBW                 ( 10 )
+        .QBW                 ( 10 ),
+        .NUM_THREAD          ( 2  )
     ) GPPCU_TEST_QUEUE_testinst
     (
         .iACLK               (iACLK),
@@ -168,5 +170,56 @@ module GPPCU_TEST_QUEUE_testbench;
         .oDONE               (oDONE)
     );
     
+    always #10 iACLK = ~iACLK;
+    reg opclk;
+    reg [6:0] wp;
+    reg [7:0] lp;
+    reg [15:0] cmd;
+    
+    assign iCMD = { opclk, wp, lp, cmd };
+    integer i;
+    integer j;
+    initial begin
+        #10 inRST = 0;
+        #10 inRST = 1;
+        
+        opclk = 0;
+        
+        // set initial data 
+        for(i = 0; i < 2; i = i + 1) begin 
+            wp = 2;
+            lp = i;
+            for(j = 0; j < 16; j = j + 1) begin
+                cmd = j;
+                iDATA = j == 0 ? i + 'h1000 : j;
+                #5 opclk = 1;
+                #5 opclk = 0;
+            end
+        end
+        
+        // set instr .. ld 0, lsl 0, st 1
+        #100;
+        cmd = 0;
+        wp = 0;
+        lp = 0;
+        
+        iDATA = {COND_ALWAYS,   MVI,    1'b0,   5'd0,   17'd4 };                #5 opclk = 1; #5 opclk = 0;
+        // iDATA = {COND_ALWAYS,   LDL,    1'b0,   5'd1,   12'h0,          5'd0 }; #5 opclk = 1; #5 opclk = 0;
+        iDATA = {COND_ALWAYS,   MVI,    1'b0,   5'd1,   17'd11 };                #5 opclk = 1; #5 opclk = 0;
+        
+        iDATA = {COND_ALWAYS,   LSL,    1'b0,   5'd1,   5'd1,   12'd0 };        #5 opclk = 1; #5 opclk = 0;
+        iDATA = {COND_ALWAYS,   STL,    1'b0,   5'h0,   5'd1,   7'd3,   5'd0 }; #5 opclk = 1; #5 opclk = 0;
+        
+        iDATA = {COND_ALWAYS,   LSL,    1'b0,   5'd1,   5'd1,   12'd0 };        #5 opclk = 1; #5 opclk = 0;
+        iDATA = {COND_ALWAYS,   STL,    1'b0,   5'h0,   5'd1,   7'd4,   5'd0 }; #5 opclk = 1; #5 opclk = 0;
+        
+        iDATA = {COND_ALWAYS,   LSL,    1'b0,   5'd1,   5'd1,   12'd0 };        #5 opclk = 1; #5 opclk = 0;
+        iDATA = {COND_ALWAYS,   STL,    1'b0,   5'h0,   5'd1,   7'd5,   5'd0 }; #5 opclk = 1; #5 opclk = 0;
+        
+        iDATA = {COND_ALWAYS,   LSL,    1'b0,   5'd1,   5'd1,   12'd0 };        #5 opclk = 1; #5 opclk = 0;
+        iDATA = {COND_ALWAYS,   STL,    1'b0,   5'h0,   5'd1,   7'd6,   5'd0 }; #5 opclk = 1; #5 opclk = 0;
+        
+        iDATA = {COND_ALWAYS,   LDL,    1'b0,   5'd5,   5'h0,   7'd6,   5'd0 }; #5 opclk = 1; #5 opclk = 0;
+    end
     
 endmodule

@@ -242,8 +242,8 @@ module GPPCU_CORE_testbench;
     integer step = 0;
     initial begin
         iINSTR_VALID = 0;
-        #100 inRST = 0;
-        #100 inRST = 1; 
+        #20 inRST = 0;
+        #20 inRST = 1; 
         iINSTR_VALID = 1;
     end
     
@@ -262,10 +262,17 @@ module GPPCU_CORE_testbench;
         // 3   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd0,   7'd0,   5'd1 };
         // 4   : iINSTR <= {COND_ALWAYS,   ADC,    1'b0,   5'd2,   5'd2,   7'd0,   5'd1 };
         // 5   : iINSTR <= {COND_ALWAYS,   FDIV,   1'b0,   5'd2,   5'd3,   7'd0,   5'd1 };
-        // 0   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd0,   17'd1 };
-        // 1   : iINSTR <= {COND_ALWAYS,   ITOF,   1'b0,   5'd1,   5'd0,   7'd0,   5'd0 };
-        // 2   : iINSTR <= {COND_ALWAYS,   FTOI,   1'b0,   5'd2,   5'd1,   7'd0,   5'd0 };
-        // 3   : iINSTR <= {COND_NEVER ,   ADC,    1'b1,   5'd3,   5'd1,   7'd0,   5'd2 };  
+        0   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd0,   17'd1 };
+        1   : iINSTR <= {COND_ALWAYS,   ITOF,   1'b0,   5'd1,   5'd0,   7'd0,   5'd0 };
+        2   : iINSTR <= {COND_ALWAYS,   FTOI,   1'b0,   5'd2,   5'd1,   7'd0,   5'd0 };
+        3   : iINSTR <= {COND_ALWAYS,   MVI,    1'b0,   5'd5,   17'd100 };
+        4   : iINSTR <= {COND_ALWAYS,   STL,    1'b0,   5'd0,   5'd0,   7'd0,   5'd5 };
+        5   : iINSTR <= {COND_ALWAYS,   STL,    1'b0,   5'd0,   5'd1,   7'd1,   5'd5 };
+        6   : iINSTR <= {COND_ALWAYS,   STL,    1'b0,   5'd0,   5'd2,   7'd2,   5'd5 };
+        7   : iINSTR <= {COND_ALWAYS,   LDL,    1'b0,   5'd3,   5'd0,   7'd0,   5'd5 };
+        8   : iINSTR <= {COND_ALWAYS,   LDL,    1'b0,   5'd4,   5'd0,   7'd1,   5'd5 };
+        9   : iINSTR <= {COND_ALWAYS,   LDL,    1'b0,   5'd5,   5'd0,   7'd2,   5'd5 };
+        10  : iINSTR <= 0;
         // @todo. verify FPU state machine
         // @todo. verify memory
         // @todo. verify conditional execution
