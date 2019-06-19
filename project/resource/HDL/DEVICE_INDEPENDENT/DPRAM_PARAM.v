@@ -19,7 +19,7 @@ module DPRAM_PARAM #(
     `include "bit_fit.vh"
     
     // params
-    localparam ABW = bit_fit(DEPTH); 
+    localparam ABW = bit_fit(DEPTH - 1); 
     
     // ports
     input                           iPA_CLK;
@@ -29,7 +29,7 @@ module DPRAM_PARAM #(
     output  [DBW-1:0]               oPA_RDATA;    
     
     input                           iPB_CLK;
-    input   [ABW-1:0]  iPB_ADDR;
+    input   [ABW-1:0]               iPB_ADDR;
     input                           iPB_WR; 
     input   [DBW-1:0]               iPB_WDATA;
     output  [DBW-1:0]               oPB_RDATA;    

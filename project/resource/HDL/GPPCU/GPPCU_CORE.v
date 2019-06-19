@@ -8,6 +8,7 @@ module GPPCU_CORE #
 (
     iACLK               ,          // Instruction should be valid on ACLK's rising edge.
     inRST               ,
+    oIDLING             ,          // Doing nothing.
     iINSTR              ,
     iINSTR_VALID        ,
     oINSTR_READY        ,   // Replaces instruction address. 
@@ -30,6 +31,7 @@ module GPPCU_CORE #
     /// ports
     input                   iACLK;
     input                   inRST;
+    output                  oIDLING;
     input   [DBW-1:0]       iINSTR;
     input                   iINSTR_VALID;
     output                  oINSTR_READY;       // Notify this module is ready to take next instr.
@@ -76,6 +78,7 @@ module GPPCU_CORE #
     
     // logics
     assign oINSTR_READY = can_fetch;
+    assign oIDLING = ~(cw_valid_decode | cw_valid_fetch | cw_valid_exec | cw_valid_writeback);
     
     // Proceed pipeline
     // @example
@@ -137,7 +140,7 @@ module GPPCU_CORE #
     assign oGMEM_ADDR = instr_fetch[INSTR_IMM2_17+:17];
     
     // Thread instances
-    wire[NUM_THREAD-1:0] thread_calc_delay; // Only first wire in vector will be used.
+    wire[NUM_THREAD-1:0] thread_calc_delay; // Only first wire in the vector will be used.
     wire[DBW-1:0] lmem_out_data_mux[NUM_THREAD-1:0];
     assign on_calculation_delay = |thread_calc_delay;
     assign oLMEM_RDATA = lmem_out_data_mux[iLMEM_THREAD_SEL];

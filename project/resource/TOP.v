@@ -136,7 +136,9 @@ module TOP
     ); 
     
     // GPPCU CORE
-    GPPCU_TEST_QUEUE GPPCU_TEST_QUEUE_inst(
+    GPPCU_TEST_QUEUE #(
+        .QBW                 (10)  
+    ) GPPCU_TEST_QUEUE_inst(
         .iACLK               (iCLK50MHz),
         .inRST               (inRST),
         .iCMD                (gppcu_cmd),

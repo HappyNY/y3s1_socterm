@@ -1,11 +1,16 @@
 // Test module which contains instruction queue
-module GPPCU_TEST_QUEUE(
+module GPPCU_TEST_QUEUE #(
+    parameter
+    QBW                 = 10
+)
+(
     iACLK               ,
     inRST               ,
     iCMD                ,
     iDATA               ,    
     oDATA               ,
-    oFULL
+    oFULL               ,
+    oDONE
 );
     /*
     ABOUT CMD
@@ -17,6 +22,7 @@ module GPPCU_TEST_QUEUE(
         1       READ LOCAL MEMORY   THREAD  ADDRESS         X           OUTPUT
         2       WRITE LOCAL MEMORY  THREAD  ADDRESS         INPUT       X
         3       SET GLOBAL MEMORY   X       ADDRESS         INPUT
+        4       READ STATUS                                 X           [0] IS DONE?
     */
 
     // -- ports 
@@ -26,18 +32,21 @@ module GPPCU_TEST_QUEUE(
     input   [31:0]      iDATA;
     output 	[31:0]      oDATA;
     output              oFULL;
+    output              oDONE;
     
     // -- regs    
     wire    [16:0]      oGMEM_ADDR          ;
     reg     [31:0]      iGMEM_WDATA         ;
     wire                oGMEM_CLK           ;
+    reg     [31:0]      oDATA               ;
     
     // -- parameter
     localparam 
         OPR_INSTR = 0,
         OPR_RDL = 1,
         OPR_WRL = 2,
-        OPR_WRG = 3
+        OPR_WRG = 3,
+        OPR_STAT = 4
     ;
     
     // -- routing
@@ -45,17 +54,19 @@ module GPPCU_TEST_QUEUE(
     wire    [ 6:0]      wparam  = iCMD[30:24];
     wire    [ 7:0]      lparam  = iCMD[23:16];
     wire    [15:0]      command = iCMD[15:0];
+    wire    [31:0]      data_out;
     
     wire                instr_ready;
     wire                instr_valid;
+    wire                gppcu_idle; 
     
-    // -- instruction queue    
-    reg     [ 7:0]      queue_head;
-    reg     [ 7:0]      queue_tail;
+    // -- instruction queue  
+    reg     [QBW-1:0]      queue_head;
+    reg     [QBW-1:0]      queue_tail;
     wire    [31:0]      queue_dat;
     DPRAM_PARAM #( 
         .DBW         (32), 
-        .DEPTH       (256)
+        .DEPTH       (1 << QBW)
     ) DPRAM_PARAM_queue
     (
         .iPA_CLK     (opclk),
@@ -70,8 +81,18 @@ module GPPCU_TEST_QUEUE(
         .oPB_RDATA   (queue_dat)
     ); 
     
+    // -- output data logic
+    wire [15:0] upper = queue_head;
+    wire [15:0] lower = queue_tail;
+    
+    always @(posedge opclk) case(wparam) 
+        OPR_STAT: oDATA <= {upper, lower};
+        default : oDATA <= data_out;
+    endcase
+    
     assign  instr_valid = queue_head != queue_tail;
-    assign  oFULL = queue_head = queue_tail - 1;
+    assign  oFULL = queue_head == queue_tail - 1;
+    assign  oDONE = queue_head == queue_tail && gppcu_idle;
     
     // adjust head
     always @(posedge opclk or negedge inRST) begin
@@ -104,6 +125,7 @@ module GPPCU_TEST_QUEUE(
     (
         .iACLK               (iACLK),          // Instruction should be valid on ACLK's rising edge.
         .inRST               (inRST),
+        .oIDLING             (gppcu_idle),          // Doing nothing.
         .iINSTR              (queue_dat),
         .iINSTR_VALID        (instr_valid),
         .oINSTR_READY        (instr_ready),   // Replaces instruction address. 
@@ -111,7 +133,7 @@ module GPPCU_TEST_QUEUE(
         .iLMEM_THREAD_SEL    (lparam), // Thread selection input
         .iLMEM_ADDR          (command),
         .iLMEM_WDATA         (iDATA),
-        .oLMEM_RDATA         (oDATA),
+        .oLMEM_RDATA         (data_out),
         .iLMEM_RD            (wparam == OPR_RDL),
         .iLMEM_WR            (wparam == OPR_WRL),
         .oGMEM_ADDR          (oGMEM_ADDR),
