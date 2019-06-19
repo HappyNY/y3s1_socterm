@@ -87,8 +87,7 @@ module GPPCU_THREAD # (
     end
     
     // -- Execute platform reg
-    reg [31:0]  exec_oprand_a, exec_oprand_b;
-    wire        exec_hold_operands;
+    reg [31:0]  exec_oprand_a, exec_oprand_b; 
     always @(posedge iACLK) exec_oprand_a   <= dec_reg_a;
     always @(posedge iACLK) exec_oprand_b   <= dec_opr_b_mux; 
     
@@ -172,8 +171,7 @@ module GPPCU_THREAD # (
     );
     
     // Stall signal resolves automatically when the stage arrives DONE.
-    assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP];
-    assign exec_hold_operands = fp_stage != FP_IDLE;
+    assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP]; 
     // No reset logic. Always wait for calculation done
     always @(posedge iACLK) 
     if(~inRST)

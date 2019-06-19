@@ -141,3 +141,33 @@ module GPPCU_TEST_QUEUE #(
         .oGMEM_CLK           (oGMEM_CLK)
     );
 endmodule
+
+
+module GPPCU_TEST_QUEUE_testbench;
+    `include "GPPCU_PARAMETERS.vh"
+    
+    // -- ports 
+    reg               iACLK;
+    reg               inRST;
+    reg   [31:0]      iCMD;
+    reg   [31:0]      iDATA;
+    wire  [31:0]      oDATA;
+    wire              oFULL;
+    wire              oDONE;
+    
+    
+    GPPCU_TEST_QUEUE #( 
+        QBW                 ( 10 )
+    ) GPPCU_TEST_QUEUE_testinst
+    (
+        .iACLK               (iACLK),
+        .inRST               (inRST),
+        .iCMD                (iCMD),
+        .iDATA               (iDATA),    
+        .oDATA               (oDATA),
+        .oFULL               (oFULL),
+        .oDONE               (oDONE)
+    );
+    
+    
+endmodule
