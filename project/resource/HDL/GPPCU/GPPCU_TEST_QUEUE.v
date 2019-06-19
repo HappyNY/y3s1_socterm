@@ -153,8 +153,7 @@ module GPPCU_TEST_QUEUE_testbench;
     reg   [31:0]      iDATA;
     wire  [31:0]      oDATA;
     wire              oFULL;
-    wire              oDONE;
-    
+    wire              oDONE; 
     
     GPPCU_TEST_QUEUE #( 
         QBW                 ( 10 )

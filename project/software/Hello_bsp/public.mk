@@ -161,9 +161,9 @@ SOPC_SYSID_FLAG += --sidp=0x10041078
 ELF_PATCH_FLAG  += --sidp 0x10041078
 
 # The SOPC Timestamp 
-# setting SOPC_TIMESTAMP is 1560869147
-SOPC_SYSID_FLAG += --timestamp=1560869147
-ELF_PATCH_FLAG  += --timestamp 1560869147
+# setting SOPC_TIMESTAMP is 1560917161
+SOPC_SYSID_FLAG += --timestamp=1560917161
+ELF_PATCH_FLAG  += --timestamp 1560917161
 
 # Enable JTAG UART driver to recover when host is inactive causing buffer to 
 # full without returning error. Printf will not fail with this recovery. none 
@@ -182,7 +182,8 @@ ELF_PATCH_FLAG  += --timestamp 1560869147
 # multiple inheritance and exceptions are not supported. If false, adds 
 # -DALT_NO_C_PLUS_PLUS to ALT_CPPFLAGS in public.mk, and reduces code 
 # footprint. none 
-# setting hal.enable_c_plus_plus is true
+# setting hal.enable_c_plus_plus is false
+ALT_CPPFLAGS += -DALT_NO_C_PLUS_PLUS
 
 # When your application exits, close file descriptors, call C++ destructors, 
 # etc. Code footprint can be reduced by disabling clean exit. If disabled, adds 

@@ -139,14 +139,12 @@ ACDS_VERSION := 18.0
 # Define path to the application ELF. 
 # It may be used by the makefile fragments so is defined before including them. 
 # 
-ELF := Hello.elf
+ELF := hello.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS :=
-CXX_SRCS += src/cgrom.cpp
-CXX_SRCS += hello_world.cpp
-CXX_SRCS += src/chout.cpp
-CXX_SRCS += src/gppcu.cpp
+C_SRCS += main.c
+C_SRCS += gppcu.c
+CXX_SRCS :=
 ASM_SRCS :=
 
 
@@ -155,7 +153,7 @@ OBJ_ROOT_DIR := obj
 
 # Options to control objdump.
 CREATE_OBJDUMP := 1
-OBJDUMP_INCLUDE_SOURCE := 1
+OBJDUMP_INCLUDE_SOURCE := 0
 OBJDUMP_FULL_CONTENTS := 0
 
 # Options to enable/disable optional files.
@@ -191,7 +189,6 @@ APP_LIBRARY_NAMES :=
 BUILD_PRE_PROCESS :=
 BUILD_POST_PROCESS :=
 
-QUARTUS_PROJECT_DIR := ../../
 
 
 #END GENERATED

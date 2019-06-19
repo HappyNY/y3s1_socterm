@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>2019. 6. 19 오전 12:02:44</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1560870164247</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>2019. 6. 19 오후 1:26:42</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1560918402006</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\software\Hello_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\SYSTEM.sopcinfo</SopcDesignFile>
@@ -782,7 +782,7 @@
                 <SettingName>hal.enable_c_plus_plus</SettingName>
                 <Identifier>ALT_NO_C_PLUS_PLUS</Identifier>
                 <Type>Boolean</Type>
-                <Value>1</Value>
+                <Value>0</Value>
                 <DefaultValue>1</DefaultValue>
                 <DestinationFile>public_mk_define</DestinationFile>
                 <Description>Enable support for a subset of the C++ language. This option increases code footprint by adding support for C++ constructors. Certain features, such as multiple inheritance and exceptions are not supported. If false, adds -DALT_NO_C_PLUS_PLUS to ALT_CPPFLAGS in public.mk, and reduces code footprint.</Description>

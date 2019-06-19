@@ -17,7 +17,15 @@
 			"*.r16": "8051",
 			"*.c51": "c",
 			"*.s": "8051",
-			"cstring": "cpp"
+			"cstring": "cpp",
+			"initializer_list": "c",
+			"type_traits": "c",
+			"vector": "c",
+			"xstring": "c",
+			"xutility": "c",
+			"altera_avalon_pio_regs.h": "c",
+			"nios2.h": "c",
+			"gppcu.h": "c"
 		}
 	}
 }
