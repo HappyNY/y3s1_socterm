@@ -81,7 +81,7 @@ module GPPCU_THREAD # (
         case(iCW_DEC[CW_BSEL1:CW_BSEL0])
         2'd0: dec_opr_b_mux <= dec_reg_b + iINSTR_DEC[INSTR_IMM0_7+:7];
         2'd1: dec_opr_b_mux <= iINSTR_DEC[INSTR_IMM1_12+:12];
-        2'd2: dec_opr_b_mux <= iINSTR_DEC[INSTR_IMM1_17+:17];
+        2'd2: dec_opr_b_mux <= iINSTR_DEC[INSTR_IMM2_17+:17];
         2'd3: dec_opr_b_mux <= iGMEMDATA;
         endcase
     end

@@ -36,8 +36,8 @@ module GPPCU_INSTR_DEC (
         LSL   : oCW <= 'b__1_0_0_1_0_0_xxxx_1011_xx_0_1;
         LSR   : oCW <= 'b__1_0_0_1_0_0_xxxx_1100_xx_0_1;
         ASR   : oCW <= 'b__1_0_0_1_0_0_xxxx_1101_xx_0_1;
-        ITOF  : oCW <= 'b__1_0_1_0_0_0_x010_xxxx_00_0_1;
-        FTOI  : oCW <= 'b__1_0_1_0_0_0_x001_xxxx_00_0_1;
+        ITOF  : oCW <= 'b__1_0_1_0_0_0_x010_xxxx_xx_0_1;
+        FTOI  : oCW <= 'b__1_0_1_0_0_0_x001_xxxx_xx_0_1;
         FMUL  : oCW <= 'b__1_1_1_0_0_0_x100_xxxx_00_0_1;
         FDIV  : oCW <= 'b__1_1_1_0_0_0_x111_xxxx_00_0_1;
         FADD  : oCW <= 'b__1_1_1_0_0_0_x101_xxxx_00_0_1;
