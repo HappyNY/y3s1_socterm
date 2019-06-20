@@ -51,7 +51,7 @@ module GPPCU_TEST_QUEUE #(
     
     // -- nets
     wire    [16:0]      oGMEM_ADDR          ;
-    wire    [31:0]      iGMEM_WDATA         ;
+    reg     [31:0]      iGMEM_WDATA         ;
     wire                oGMEM_CLK           ;
     
     // -- parameter
@@ -97,7 +97,7 @@ module GPPCU_TEST_QUEUE #(
     assign oDONE            = program_done;
     assign status[31]       = pmem_running;
     assign status[30]       = program_done;
-    assign status[29:24]    = sz_per_task   [0+:6];
+    assign status[29:24]    = cur_task_ofst   [0+:6];
     assign status[23:16]    = pmem_end      [0+:8];
     assign status[15: 8]    = pmem_head     [0+:8];
     assign status[ 7: 4]    = num_cycles    [0+:4];
@@ -195,7 +195,7 @@ module GPPCU_TEST_QUEUE #(
         .oPB_RDATA   (gmem_dat)
     ); 
     
-    assign iGMEM_WDATA = oGMEM_ADDR == 0 ? cur_task_ofst : gmem_dat;
+    always @(posedge oGMEM_CLK) iGMEM_WDATA = oGMEM_ADDR == 0 ? cur_task_ofst : gmem_dat;
     assign instr_valid = pmem_running && !program_done && pmem_head != pmem_end;
     always oDATA <= wparam == OPR_COMMAND ? status : data_out;
     

@@ -136,8 +136,9 @@ module GPPCU_CORE #
     );
      
     // Global memory interface
-    assign oGMEM_CLK  = iACLK & cw_valid_decode & cw_decode[CW_GMEMRD];
-    assign oGMEM_ADDR = instr_fetch[INSTR_IMM2_17+:17];
+    // inverse clock to get data early.
+    assign oGMEM_CLK  = ~iACLK;
+    assign oGMEM_ADDR = instr_decode[INSTR_IMM2_17+:17];
     
     // Thread instances
     wire[NUM_THREAD-1:0] thread_calc_delay; // Only first wire in the vector will be used.
