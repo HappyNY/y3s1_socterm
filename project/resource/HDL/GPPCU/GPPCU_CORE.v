@@ -120,9 +120,9 @@ module GPPCU_CORE #
         .iREGD          (instr_decode[INSTR_REGD_5+:5]),
         .iREGA          (instr_decode[INSTR_REGA_5+:5]),
         .iREGB          (instr_decode[INSTR_REGB_5+:5]),
-        .iVALID_REGD    (cw_valid_decode & cw_decode[CW_REGWR]),
-        .iVALID_REGA    (cw_valid_decode & cw_decode[CW_USEREGA]),
-        .iVALID_REGB    (cw_valid_decode & cw_decode[CW_USEREGB]),
+        .iVALID_REGD    (~on_calculation_delay & cw_valid_decode & cw_decode[CW_REGWR]),
+        .iVALID_REGA    (~on_calculation_delay & cw_valid_decode & cw_decode[CW_USEREGA]),
+        .iVALID_REGB    (~on_calculation_delay & cw_valid_decode & cw_decode[CW_USEREGB]),
         .oENABLED       (can_use_reg),
         
         .iWRREG         (instr_writeback[INSTR_REGD_5+:5]),

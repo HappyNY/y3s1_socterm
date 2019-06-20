@@ -25,7 +25,8 @@ obj/default/src/main.o: src/main.c ../Hello_bsp/system.h \
  src/mathc.h ../Hello_bsp//newlib/nios2-elf/include/math.h \
  ../Hello_bsp//newlib/nios2-elf/include/stdlib.h \
  ../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h \
- ../Hello_bsp//newlib/nios2-elf/include/alloca.h
+ ../Hello_bsp//newlib/nios2-elf/include/alloca.h \
+ src/gpccu_assembly_macros.h
 
 ../Hello_bsp/system.h:
 
@@ -94,3 +95,5 @@ src/mathc.h:
 ../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h:
 
 ../Hello_bsp//newlib/nios2-elf/include/alloca.h:
+
+src/gpccu_assembly_macros.h:

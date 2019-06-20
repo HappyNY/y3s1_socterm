@@ -19,7 +19,14 @@ obj/default/src/app.o: src/app.c ../Hello_bsp/system.h \
  ../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h \
  ../Hello_bsp//newlib/nios2-elf/include/alloca.h \
  ../Hello_bsp//newlib/nios2-elf/include/string.h \
- ../Hello_bsp//newlib/nios2-elf/include/sys/string.h
+ ../Hello_bsp//newlib/nios2-elf/include/sys/string.h src/gppcu.h \
+ ../Hello_bsp//drivers/inc/altera_avalon_pio_regs.h \
+ ../Hello_bsp//HAL/inc/io.h ../Hello_bsp//HAL/inc/alt_types.h src/utils.h \
+ ../Hello_bsp//newlib/nios2-elf/include/stdio.h \
+ ../Hello_bsp//newlib/nios2-elf/include/sys/types.h \
+ ../Hello_bsp//newlib/nios2-elf/include/machine/types.h \
+ ../Hello_bsp//newlib/nios2-elf/include/sys/stdio.h \
+ src/gpccu_assembly_macros.h
 
 ../Hello_bsp/system.h:
 
@@ -68,3 +75,23 @@ src/mathc.h:
 ../Hello_bsp//newlib/nios2-elf/include/string.h:
 
 ../Hello_bsp//newlib/nios2-elf/include/sys/string.h:
+
+src/gppcu.h:
+
+../Hello_bsp//drivers/inc/altera_avalon_pio_regs.h:
+
+../Hello_bsp//HAL/inc/io.h:
+
+../Hello_bsp//HAL/inc/alt_types.h:
+
+src/utils.h:
+
+../Hello_bsp//newlib/nios2-elf/include/stdio.h:
+
+../Hello_bsp//newlib/nios2-elf/include/sys/types.h:
+
+../Hello_bsp//newlib/nios2-elf/include/machine/types.h:
+
+../Hello_bsp//newlib/nios2-elf/include/sys/stdio.h:
+
+src/gpccu_assembly_macros.h:

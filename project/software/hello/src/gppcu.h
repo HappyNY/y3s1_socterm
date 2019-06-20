@@ -85,7 +85,7 @@ enum {
 
 typedef uint32_t swk_gppcu_data_t;
 typedef uint32_t swk_gppcu_instr_t; 
-struct tagGPPCU
+struct swk_gppcu
 {
     swk_gppcu_instr_t*   marr; 
     int32_t     mcap; 
@@ -101,20 +101,30 @@ struct tagGPPCU
     uint32_t    MMAP_DATIN;
     uint32_t    MMAP_CMDOUT; 
 };
-typedef struct tagGPPCU swk_gppcu;
+typedef struct swk_gppcu swk_gppcu_t;
 
 ////////////////////////////////////////////////////////
 // INTERFACE
 ////////////////////////////////////////////////////////
-void gppcu_init(swk_gppcu* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread); 
-void gppcu_destroy(swk_gppcu* const pp);
-void gppcu_program_autofeed_device(swk_gppcu const* const pp);
-void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp );
-void gppcu_run_autofeed_device( swk_gppcu const* const pp );
+void DEPRECATED__gppcu_init(swk_gppcu_t* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread); 
+void gppcu_init(
+    swk_gppcu_t* const pp,
+    int32_t num_threads,
+    int32_t Capacity,
+    int32_t MaxWordPerThread,
+    uint32_t CMDOUT,
+    uint32_t DATOUT,
+    uint32_t DATIN
+);
 
-void gppcu_clear_instr(swk_gppcu* const pp); 
+void gppcu_destroy(swk_gppcu_t* const pp);
+void DEPRECATED__gppcu_program_autofeed_device(swk_gppcu_t const* const pp);
+void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp );
+void gppcu_run_autofeed_device( swk_gppcu_t const* const pp );
 
-void gppcu_init_task(swk_gppcu *const pp, uint8_t WordsPerTask, uint16_t NumTasks);
+void gppcu_clear_instr(swk_gppcu_t* const pp); 
+
+void gppcu_init_task(swk_gppcu_t *const pp, uint8_t WordsPerTask, uint16_t NumTasks);
 
 void gppcu_stat(
     bool* poIsRunning, 
@@ -126,17 +136,19 @@ void gppcu_stat(
     uint8_t* poCurCycleIdx
 );
 
+bool gppcu_is_done( swk_gppcu_t* const pp, uint16_t* cycles_left );
+
 // Data read/write process is capsulized
 // Maximum memory at once = 512 * 24 * 4 bytes ...  = 48kBytes
 // NumElements should be equal to NumTasks
 void gppcu_write(
-    swk_gppcu* pp, 
+    swk_gppcu_t* pp, 
     swk_gppcu_data_t const* const data, 
     uint8_t ElementSizeInWords,  
     uint32_t ofst // Means local space offset on task domain. Units in word
 );
 void gppcu_read(
-    swk_gppcu* pp, 
+    swk_gppcu_t* pp, 
     swk_gppcu_data_t * const dst, 
     uint32_t Capacity, 
     uint8_t ElementSizeInWords, 
@@ -144,7 +156,7 @@ void gppcu_read(
 );
 // Assign to constant memory
 void gppcu_write_const(
-    swk_gppcu* pp,
+    swk_gppcu_t* pp,
     swk_gppcu_data_t const * const data,
     uint32_t ofst,
     uint32_t size
@@ -169,20 +181,20 @@ void gppcu_write_const(
 void gppcu_data_wr_slow( int ThreadIdx, int WordIdx, uint32_t Data );
 uint32_t gppcu_data_rd_slow( int ThreadIdx, int WordIdx );
 
-static inline void gppcu_put_instr( swk_gppcu* const pp, swk_gppcu_instr_t instr )
+static inline void gppcu_put_instr( swk_gppcu_t* const pp, swk_gppcu_instr_t instr )
 {
     pp->marr[pp->mnum++] = instr;
     passert( pp->mnum < pp->mcap, "Instruction memory overflow!" );
 }
 
 static inline void gppcu_nop(
-    swk_gppcu* const pp )
+    swk_gppcu_t* const pp )
 {
     gppcu_put_instr( pp, 0 );
 }
 
 static inline void gppcu_arith_s(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     bool s,
@@ -196,7 +208,7 @@ static inline void gppcu_arith_s(
     );
 }
 static inline void gppcu_arith_0(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     bool s,
@@ -210,7 +222,7 @@ static inline void gppcu_arith_0(
 }
 
 static inline void gppcu_mvi(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     bool s,
     GPPCU_REGISTER regd,
@@ -223,7 +235,7 @@ static inline void gppcu_mvi(
 }
 
 static inline void gppcu_arith_a(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     bool s,
@@ -239,7 +251,7 @@ static inline void gppcu_arith_a(
 }
 
 static inline void gppcu_arith_b(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     bool s,
@@ -253,7 +265,7 @@ static inline void gppcu_arith_b(
     );
 }
 static inline void gppcu_fp_arith(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     GPPCU_REGISTER regd,
@@ -266,7 +278,7 @@ static inline void gppcu_fp_arith(
     ); 
 }
 static inline void gppcu_fp_0(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
     GPPCU_REGISTER regd,
@@ -278,7 +290,7 @@ static inline void gppcu_fp_0(
     ); 
 } 
 static inline void gppcu_ldl(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_REGISTER dest,
     GPPCU_REGISTER addr,
@@ -290,7 +302,7 @@ static inline void gppcu_ldl(
     );
 }
 static inline void gppcu_stl(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_REGISTER data,
     GPPCU_REGISTER addr,
@@ -302,7 +314,7 @@ static inline void gppcu_stl(
     );
 }
 static inline void gppcu_ldci(
-    swk_gppcu* const pp,
+    swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,
     GPPCU_REGISTER dest,
     uint32_t addr )

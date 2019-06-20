@@ -73,8 +73,24 @@ void gppcu_stat( bool* poIsRunning, bool* poIsDone, uint8_t * poSzPerTask, uint8
     *poCurCycleIdx = ( stat ) & 0xf;
 }
 
+bool gppcu_is_done( swk_gppcu_t* const pp, uint16_t* cycles_left )
+{
+    bool isdone;
+    int dummy;
+    uint8_t curcycle, maxcycle;
 
-void gppcu_init( swk_gppcu * const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread )
+    gppcu_stat( &dummy, &isdone, &dummy, &dummy, &dummy, &maxcycle, &curcycle );
+
+    if ( cycles_left )
+    {
+        *cycles_left = maxcycle - curcycle;
+    }
+
+    return isdone;
+}
+
+
+void DEPRECATED__gppcu_init( swk_gppcu_t * const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread )
 {
     pp->mcap = Capacity;
     pp->marr = malloc( Capacity * sizeof( swk_gppcu_data_t ) );
@@ -87,7 +103,24 @@ void gppcu_init( swk_gppcu * const pp, int32_t num_threads, int32_t Capacity, in
     pp->ro_max_word_per_thread = MaxWordPerThread;
 }
 
-void gppcu_init_task( swk_gppcu * const pp, uint8_t WordsPerTask, uint16_t NumTasks )
+void gppcu_init( swk_gppcu_t* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread, uint32_t CMDOUT, uint32_t DATOUT, uint32_t DATIN )
+{
+    pp->mcap = Capacity;
+    pp->marr = malloc( Capacity * sizeof( swk_gppcu_data_t ) );
+    passert( pp->marr != NULL, "Malloc returned nullptr" );
+    pp->mnum = 0;
+    pp->mnumthr = num_threads;
+    pp->mtaskcycle = 0;
+    pp->mtaskmem = 0;
+    pp->ro_numtask = 0;
+    pp->ro_max_word_per_thread = MaxWordPerThread;
+
+    pp->MMAP_CMDOUT = CMDOUT;
+    pp->MMAP_DATIN = DATIN;
+    pp->MMAP_DATOUT = DATOUT;
+}
+
+void gppcu_init_task( swk_gppcu_t * const pp, uint8_t WordsPerTask, uint16_t NumTasks )
 {
     pp->ro_numtask = NumTasks;
     pp->mtaskcycle = NumTasks / pp->mnumthr + 1;
@@ -96,7 +129,7 @@ void gppcu_init_task( swk_gppcu * const pp, uint8_t WordsPerTask, uint16_t NumTa
     passert( NumTasks < pp->ro_taskmaxcycle * pp->mnumthr, "Task number has set too many." );
 }
 
-void gppcu_destroy( swk_gppcu * const pp )
+void gppcu_destroy( swk_gppcu_t * const pp )
 {
     free( pp->marr );
 }
@@ -207,7 +240,7 @@ static inline bool instr_useregb( uint8_t opc )
     }
 }
 
-void gppcu_program_autofeed_device( swk_gppcu const* const pp )
+void DEPRECATED__gppcu_program_autofeed_device( swk_gppcu_t const* const pp )
 {
     swk_gppcu_instr_t const* lphead = pp->marr;
     swk_gppcu_instr_t const* const lpend = pp->marr + pp->mnum;
@@ -222,9 +255,7 @@ void gppcu_program_autofeed_device( swk_gppcu const* const pp )
     // Since hardware stall signal generator is not stable ! 
     while ( lphead < lpend ) {
         // @todo. verify hardware stall generator and remove this
-        const swk_gppcu_instr_t instr = *lphead++;
-#if GPPCU_ENABLE_UNCONDITIONAL_BUBBLE_GENERATION  
-#endif
+        const swk_gppcu_instr_t instr = *lphead++; 
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, instr );
@@ -259,7 +290,7 @@ char* instr_to_string( char* buff64, swk_gppcu_instr_t instr )
 
 const uint8_t REGPIVOT = REG_PER_THREAD - 1;
 
-void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
+void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
 {
     int pcnt;
     swk_gppcu_instr_t const* lphead = pp->marr;
@@ -342,7 +373,7 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
             gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, pinstr[0] );
             char buff[124];
             instr_to_string( buff, pinstr[0] );
-            printf( "putting instr %s\n", buff );
+            // printf( "putting instr %s\n", buff );
         }
 
         for ( pcnt = 0; pcnt < BUBBLES; ++pcnt )
@@ -352,7 +383,7 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
     }
 }
 
-void gppcu_run_autofeed_device( swk_gppcu const* const pp )
+void gppcu_run_autofeed_device( swk_gppcu_t const* const pp )
 {
     // Run
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RUNSTOP, 0 );
@@ -362,13 +393,13 @@ void gppcu_run_autofeed_device( swk_gppcu const* const pp )
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RUNSTOP, 1 );
 }
 
-void gppcu_clear_instr( swk_gppcu* const pp )
+void gppcu_clear_instr( swk_gppcu_t* const pp )
 {
     pp->mnum = 0;
 }
 
 void gppcu_write(
-    swk_gppcu* pp,
+    swk_gppcu_t* pp,
     swk_gppcu_data_t const* const data,
     uint8_t ElementSizeInWords,
     uint32_t ofst // Means local space offset on task domain. Units in word
@@ -403,7 +434,7 @@ void gppcu_write(
 }
 
 void gppcu_read(
-    swk_gppcu* pp,
+    swk_gppcu_t* pp,
     swk_gppcu_data_t* const dst,
     uint32_t Capacity,
     uint8_t ElementSizeInWords,
@@ -445,7 +476,7 @@ void gppcu_read(
     }
 }
 
-void gppcu_write_const( swk_gppcu * pp, swk_gppcu_data_t const* const data, uint32_t ofst, uint32_t size )
+void gppcu_write_const( swk_gppcu_t * pp, swk_gppcu_data_t const* const data, uint32_t ofst, uint32_t size )
 {
     swk_gppcu_data_t const* lphead = data, * lpend = data + size;
 

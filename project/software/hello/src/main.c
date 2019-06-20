@@ -6,6 +6,7 @@
 #include <string.h>
 #include "app.h"
 #include <stdlib.h> 
+#include "gpccu_assembly_macros.h"
 
 #define countof(v) (sizeof(v)/sizeof(*v))
 #define BOOL int
@@ -21,7 +22,7 @@ void wait(int val)
 	}
 }
 
-BOOL display_stat()
+BOOL display_stat_is_done()
 {
     bool prun, pdone;
     uint8_t szpertask, popmemend, popmemhead, ponumcycles, pocurcycleidx;
@@ -69,6 +70,105 @@ void monitor( int num_thr, int begin, int num_mem )
 
 int main()
 {
+    swk_gppcu_t gppcu;
+
+    gppcu_init( &gppcu, 24, 1024, 512, PIO_CMD_BASE, PIO_DATAOUT_BASE, PIO_DATAIN_BASE );
+    gppcu_init_task( &gppcu, 8, 240 );
+     
+    mem_clr( 12, 24 );
+
+    gppcu_clear_instr( &gppcu );
+
+    gp_set_gppcu_ptr( &gppcu );  
+
+    gp_mvi( 0x0, 3 );
+    gp_mvi( 0x1, 4 );
+     
+    gp_itof( 0x0, 0x0 );
+    gp_itof( 0x1, 0x1 );
+    
+    gp_fmul( 0x2, 0x1, 0x0 );
+    gp_fdiv( 0x3, 0x1, 0x0 );
+    gp_fsqrt( 0x4, 0x2 );
+
+    gp_stl( 0x0, REGPIVOT, 0 );
+    gp_stl( 0x1, REGPIVOT, 1 );
+    gp_stl( 0x2, REGPIVOT, 2 );
+    gp_stl( 0x3, REGPIVOT, 3 );
+    gp_stl( 0x4, REGPIVOT, 4 ); 
+
+    gppcu_program_autofeed_device_parallel( &gppcu );
+    gppcu_run_autofeed_device( &gppcu );
+
+    while ( display_stat_is_done() == false )
+    {
+        gppcu_program_autofeed_device_parallel( &gppcu );
+        gppcu_run_autofeed_device( &gppcu );
+
+        wait( 1000000 );
+    }
+    monitor( 12, 0, 20 );
+
+    gppcu_destroy( &gppcu );
+    while ( 1 );
+}
+
+int main__d()
+{
+    printf( "Hello from Nios II! ... Launching ... \n" );
+     
+    const int max_iter = 16;
+    const int max_rot = 4;
+
+    swk_gppcu_t gppcu;
+
+    gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
+    gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
+    gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
+
+    DEPRECATED__gppcu_init( &gppcu, 24, 1024, 512 );
+    gppcu_init_task( &gppcu, 4, 240 );
+
+    gppcu_clear_instr( &gppcu ); 
+    swk_gppcu_data_t initdat[240];
+    int i;
+    for ( i = 0; i < countof( initdat ); ++i )
+    {
+        initdat[i] = i;
+    }
+      
+    gp_set_gppcu_ptr( &gppcu ); 
+    gp_mov( REG0, REGPIVOT, 0 ); 
+    gp_adi( REG1, REG0, 1 ); 
+    gp_stl( REG0, REG0, 1 ); 
+    gp_stl( REG1, REG0, 2 ); 
+    gp_ldci( REG4, 1 ); 
+    gp_stl( REG4, REG0, 0 );
+    gp_mvi( REG4, 0x3323 );
+    gp_stl( REG4, REG0, 3 );
+
+    int v = 0x1234;
+    gppcu_write_const( &gppcu, &v, 1, 1 ); 
+
+    while ( true )
+    {
+        mem_clr( max_rot, max_iter );
+        gppcu_write( &gppcu, initdat, 1, 0 );
+
+        // Program & run 
+        gppcu_program_autofeed_device_parallel( &gppcu );
+        gppcu_run_autofeed_device( &gppcu );
+
+        // Display dat
+        wait( 5000000 );
+        display_stat_is_done();
+
+        monitor( 4, 0, 21 );
+    }
+}
+
+int main__2()
+{
     swk_meshinfo_t meshinfo;
     vec3_zero( &meshinfo.location );
     vec3_zero( &meshinfo.rotation );
@@ -112,7 +212,7 @@ int main()
     return 0;
 }
 
-int gppcu_test()
+int main__1()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
     
@@ -120,13 +220,13 @@ int gppcu_test()
     const int max_iter = 16;
     const int max_rot = 4;
 
-    swk_gppcu gppcu;
+    swk_gppcu_t gppcu;
 
     gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
     gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
     gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
 
-    gppcu_init( &gppcu, 24, 1024, 512 );
+    DEPRECATED__gppcu_init( &gppcu, 24, 1024, 512 );
     gppcu_init_task( &gppcu, 4, 240 );
 
     gppcu_clear_instr( &gppcu );
@@ -170,7 +270,7 @@ int gppcu_test()
 
         // Display dat
         wait( 5000000 );
-        display_stat();
+        display_stat_is_done();
 
         monitor( 4, 0, 21 );
     }
@@ -208,8 +308,8 @@ int gppcu_test()
 			}
 		}
 		
-        gppcu_program_autofeed_device( &gppcu );
-        while ( !display_stat() ); 
+        DEPRECATED__gppcu_program_autofeed_device( &gppcu );
+        while ( !display_stat_is_done() ); 
         wait( 5000000 );
         
         for(int rot = 0; rot < max_rot; ++rot)
