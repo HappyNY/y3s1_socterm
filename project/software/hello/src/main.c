@@ -4,7 +4,8 @@
 #include <altera_avalon_pio_regs.h>
 #include <nios2.h>
 #include <string.h>
-
+#include "app.h"
+#include <stdlib.h> 
 
 #define countof(v) (sizeof(v)/sizeof(*v))
 #define BOOL int
@@ -67,6 +68,51 @@ void monitor( int num_thr, int begin, int num_mem )
 }
 
 int main()
+{
+    swk_meshinfo_t meshinfo;
+    vec3_zero( &meshinfo.location );
+    vec3_zero( &meshinfo.rotation );
+    vec3_one( &meshinfo.scale );
+
+    swk_cam_t cam;
+    cam.far = 250.f;
+    cam.near = 1.f;
+    cam.fov = 85.0f;
+    vec3( &cam.location, 0.f, 0.f, 50.f );
+    vec3_zero( &cam.rotation );
+
+    swk_object_constant_t result;
+
+    app_calc_object_constant( &result, &cam, &meshinfo );
+    
+    mfloat_t smplvtex[VEC4_SIZE];
+    
+    float x = 0, y = 0, z = 0;
+
+    while ( 1 )
+    {
+        vec4( smplvtex, x, y, z, 1.f );
+        vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
+        printf( "Vector at %f, %f, %f\n", x, y, z );
+        printf( "Translate %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2] );
+        vec3_divide_f( smplvtex, smplvtex, smplvtex[2] );
+        smplvtex[0] += 0.5f;
+        smplvtex[1] += 0.5f;
+        smplvtex[0] *= result.width;
+        smplvtex[1] *= result.height;
+        printf( "Result    %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2] );
+
+        wait( 5000000 );
+
+        x = rand() % 100 - 50;
+        y = rand() % 100 - 50;
+        z = rand() % 100 - 50;
+
+    }
+    return 0;
+}
+
+int gppcu_test()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
     

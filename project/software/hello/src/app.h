@@ -35,7 +35,7 @@ typedef struct swk_cam
 
 typedef struct swk_object_constant
 {
-    mfloat_t worldmat[MAT4_SIZE];
+    mfloat_t world_view_proj[MAT4_SIZE];
     float width;
     float height;
 } swk_object_constant_t;

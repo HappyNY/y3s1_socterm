@@ -13,7 +13,13 @@ obj/default/src/app.o: src/app.c ../Hello_bsp/system.h \
  ../Hello_bsp//newlib/nios2-elf/include/sys/lock.h \
  ../Hello_bsp//newlib/nios2-elf/include/_ansi.h \
  ../Hello_bsp//newlib/nios2-elf/include/stdint.h \
- ../Hello_bsp//newlib/nios2-elf/include/sys/_intsup.h
+ ../Hello_bsp//newlib/nios2-elf/include/sys/_intsup.h \
+ ../Hello_bsp//newlib/nios2-elf/include/stdlib.h \
+ ../Hello_bsp//newlib/nios2-elf/include/sys/cdefs.h \
+ ../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h \
+ ../Hello_bsp//newlib/nios2-elf/include/alloca.h \
+ ../Hello_bsp//newlib/nios2-elf/include/string.h \
+ ../Hello_bsp//newlib/nios2-elf/include/sys/string.h
 
 ../Hello_bsp/system.h:
 
@@ -50,3 +56,15 @@ src/mathc.h:
 ../Hello_bsp//newlib/nios2-elf/include/stdint.h:
 
 ../Hello_bsp//newlib/nios2-elf/include/sys/_intsup.h:
+
+../Hello_bsp//newlib/nios2-elf/include/stdlib.h:
+
+../Hello_bsp//newlib/nios2-elf/include/sys/cdefs.h:
+
+../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h:
+
+../Hello_bsp//newlib/nios2-elf/include/alloca.h:
+
+../Hello_bsp//newlib/nios2-elf/include/string.h:
+
+../Hello_bsp//newlib/nios2-elf/include/sys/string.h:

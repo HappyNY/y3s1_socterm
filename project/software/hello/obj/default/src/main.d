@@ -21,7 +21,11 @@ obj/default/src/main.o: src/main.c ../Hello_bsp/system.h \
  ../Hello_bsp//HAL/inc/io.h ../Hello_bsp//HAL/inc/alt_types.h src/utils.h \
  ../Hello_bsp//HAL/inc/nios2.h \
  ../Hello_bsp//newlib/nios2-elf/include/string.h \
- ../Hello_bsp//newlib/nios2-elf/include/sys/string.h
+ ../Hello_bsp//newlib/nios2-elf/include/sys/string.h src/app.h \
+ src/mathc.h ../Hello_bsp//newlib/nios2-elf/include/math.h \
+ ../Hello_bsp//newlib/nios2-elf/include/stdlib.h \
+ ../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h \
+ ../Hello_bsp//newlib/nios2-elf/include/alloca.h
 
 ../Hello_bsp/system.h:
 
@@ -78,3 +82,15 @@ src/utils.h:
 ../Hello_bsp//newlib/nios2-elf/include/string.h:
 
 ../Hello_bsp//newlib/nios2-elf/include/sys/string.h:
+
+src/app.h:
+
+src/mathc.h:
+
+../Hello_bsp//newlib/nios2-elf/include/math.h:
+
+../Hello_bsp//newlib/nios2-elf/include/stdlib.h:
+
+../Hello_bsp//newlib/nios2-elf/include/machine/stdlib.h:
+
+../Hello_bsp//newlib/nios2-elf/include/alloca.h:
