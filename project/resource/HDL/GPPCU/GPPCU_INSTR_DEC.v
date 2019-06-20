@@ -24,7 +24,7 @@ module GPPCU_INSTR_DEC (
                            A B P P D R 3..0 3..0 1. D R  */ case (iOPC)
         NOP   : oCW <= 'b__0_0_0_0_0_0_0000_0000_xx_0_0;
         MOV   : oCW <= 'b__0_1_0_1_0_0_xxxx_0001_00_0_1;
-        MVN   : oCW <= 'b__1_1_0_1_0_0_xxxx_0010_00_0_1;
+        MVN   : oCW <= 'b__0_1_0_1_0_0_xxxx_0010_00_0_1;
         ADC   : oCW <= 'b__1_1_0_1_0_0_xxxx_0011_00_0_1;
         SBC   : oCW <= 'b__1_1_0_1_0_0_xxxx_0100_00_0_1;
         AND   : oCW <= 'b__1_1_0_1_0_0_xxxx_0101_00_0_1;

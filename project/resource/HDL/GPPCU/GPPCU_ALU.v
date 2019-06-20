@@ -39,20 +39,20 @@ module GPPCU_ALU #(
     
     // @see GPPCU_PARAMETERS.vh
     always @(*) case (iOP)
-    /*NOP*/ 4'b0000: {oC, oQ} <= {1'b0,    {BW{1'b0}}};
-    /*MOV*/ 4'b0001: {oC, oQ} <= {1'b0,     iB};
-    /*MVN*/ 4'b0010: {oC, oQ} <= {1'b1,     ~iB};
-    /*ADC*/ 4'b0011: {oC, oQ} <= iA + iB + iC;
-    /*SBC*/ 4'b0100: {oC, oQ} <= iA - iB - iC;
-    /*AND*/ 4'b0101: {oC, oQ} <= {1'b0,     iA & iB};
-    /*ORR*/ 4'b0110: {oC, oQ} <= {1'b0,     iA | iB};
-    /*XOR*/ 4'b0111: {oC, oQ} <= {1'b0,     iA ^ iB};
-    /*ADI*/ 4'b1000: {oC, oQ} <= iA + iB;
-    /*SBI*/ 4'b1001: {oC, oQ} <= iA - iB;
-    /*MVI*/ 4'b1010: {oC, oQ} <= iB;
-    /*LSL*/ 4'b1011: {oC, oQ} <= {iA[BW-2:0],   1'b0};
-    /*LSR*/ 4'b1100: {oC, oQ} <= {1'b0,         iA[BW-1:1]};
-    /*ASR*/ 4'b1101: {oC, oQ} <= {iA[BW-1],     iA[BW-1:1]};
+        NOP: {oC, oQ} <= {1'b0,    {BW{1'b0}}};
+        MOV: {oC, oQ} <= {1'b0,     iB};
+        MVN: {oC, oQ} <= {1'b1,     ~iB};
+        ADC: {oC, oQ} <= iA + iB + iC;
+        SBC: {oC, oQ} <= iA - iB - iC;
+        AND: {oC, oQ} <= {1'b0,     iA & iB};
+        ORR: {oC, oQ} <= {1'b0,     iA | iB};
+        XOR: {oC, oQ} <= {1'b0,     iA ^ iB};
+        ADI: {oC, oQ} <= iA + iB;
+        SBI: {oC, oQ} <= iA - iB;
+        MVI: {oC, oQ} <= iB;
+        LSL: {oC, oQ} <= {iA[BW-2:0],   1'b0};
+        LSR: {oC, oQ} <= {1'b0,         iA[BW-1:1]};
+        ASR: {oC, oQ} <= {iA[BW-1],     iA[BW-1:1]};
     endcase
     
 endmodule

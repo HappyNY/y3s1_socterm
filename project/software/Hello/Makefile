@@ -142,9 +142,11 @@ ACDS_VERSION := 18.0
 ELF := hello.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS += main.c
-C_SRCS += gppcu.c
-C_SRCS += utils.c
+C_SRCS += src/gppcu.c
+C_SRCS += src/main.c
+C_SRCS += src/utils.c
+C_SRCS += src/mathc.c
+C_SRCS += src/app.c
 CXX_SRCS :=
 ASM_SRCS :=
 

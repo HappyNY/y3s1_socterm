@@ -21,13 +21,13 @@ void wait(int val)
 
 BOOL display_stat()
 {
-    BOOL prun, pdone;
+    bool prun, pdone;
     uint8_t szpertask, popmemend, popmemhead, ponumcycles, pocurcycleidx;
     gppcu_stat( &prun, &pdone, &szpertask, &popmemend, &popmemhead, &ponumcycles, &pocurcycleidx );
     printf(
         "is running ? %d\n"
         "is done ? %d\n"
-        "sz per task: %d \n"
+        "cur mem ofst: %d \n"
         "mem: %d/%d \n"
         "cycle: %d/%d \n",
         prun, pdone, szpertask, popmemhead, popmemend, pocurcycleidx, ponumcycles
@@ -35,10 +35,103 @@ BOOL display_stat()
     return pdone;
 }
 
+void mem_clr( int max_rot, int max_iter )
+{
+    for ( int i = 0; i < max_rot; ++i )
+    {
+        for ( int j = 0; j < max_iter; ++j )
+        {
+            gppcu_data_wr_slow( i, j, 0 );
+        }
+    }
+}
+
+void monitor( int num_thr, int begin, int num_mem )
+{ 
+    for ( int rot = 0; rot < num_thr; ++rot )
+    {
+        printf( "for thread %d\n", rot );
+        for ( int i = begin; i < begin + num_mem; ++i )
+        {
+            printf( "%9x", i );
+        }
+        printf( "\n" );
+        for ( int i = begin; i < begin + num_mem; ++i )
+        {
+            gppcu_data_rd_slow( rot, i );
+            printf( "%9x", gppcu_data_rd_slow( rot, i ) );
+        }
+        printf( "\n" );
+    }
+}
+
 int main()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
-      
+     
+    const int max_iter = 16;
+    const int max_rot = 4;
+
+    swk_gppcu gppcu;
+
+    gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
+    gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
+    gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
+
+    gppcu_init( &gppcu, 24, 1024, 512 );
+    gppcu_init_task( &gppcu, 4, 240 );
+
+    gppcu_clear_instr( &gppcu );
+
+	//**//*
+    swk_gppcu_data_t initdat[240];
+    int i;
+    for ( i = 0; i < countof( initdat ); ++i ) 
+    {
+        initdat[i] = i;
+    }
+
+    
+    // reg01 should be 2.
+    // gppcu_ldci( &gppcu, COND_ALWAYS, REGF, 0 ); 
+    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REG10, 0 ); 
+    gppcu_arith_b( &gppcu, COND_ALWAYS, OPR_B_ADI, false, REG1, REG0, 1 );  
+    gppcu_stl( &gppcu, COND_ALWAYS, REG0, REG0, 1 );  
+    gppcu_stl( &gppcu, COND_ALWAYS, REG1, REG0, 2 );  
+    gppcu_ldci( &gppcu, COND_ALWAYS, REG4, 1 );
+    gppcu_stl( &gppcu, COND_ALWAYS, REG4, REG0, 0 );
+    int v = 0x1234;
+    gppcu_write_const( &gppcu, &v, 1, 1 );
+    // gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG01, REG00, 0 );  
+    // gppcu_arith_a( &gppcu, COND_ALWAYS, OPR_A_ADC, false, REG01, REG01, REG01, 0 ); 
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG00, REG00, 1 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG01, REG00, 2 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG01, REG00, 1 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG03, REG00, 2 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG04, REG00, 3 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG05, REG00, 4 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG06, REG00, 5 );
+
+    while ( true )
+    {
+        mem_clr( max_rot, max_iter );  
+        gppcu_write( &gppcu, initdat, 1, 0 ); 
+
+        // Program & run
+        /**//*
+        gppcu_program_autofeed_device( &gppcu );
+        /*/
+        gppcu_program_autofeed_device_parallel( &gppcu );
+        //*/
+        gppcu_run_autofeed_device( &gppcu );
+
+        // Display dat
+        wait( 5000000 );
+        display_stat();
+
+        monitor( 4, 0, 21 );
+    }
+    /*/
 #define INSTR_BUNDLE \
 	    GPPCU_ASSEMBLE_INSTRUCTION_C(COND_ALWAYS, OPR_C_MVI, FALSE, 0x1, 0),                 \
     GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_C_MVI, FALSE, 0x2, 0 ),                   \
@@ -55,26 +148,14 @@ int main()
     {
         INSTR_BUNDLE
     };
-
-    swk_gppcu gppcu;
-
-    gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
-    gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
-    gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
-
-    gppcu_init( &gppcu, 24, 1024, 512 );
-    gppcu_init_task( &gppcu, 16, 24 );
+    int cc = 0;
     memcpy( gppcu.marr, instrs, sizeof( instrs ) );
     gppcu.mnum = countof( instrs );
-
-	int cc = 0;
 	while(1)
 	{ 
 		++cc;
 		
 		printf("--- STEP %d ---\n", cc);
-		const int max_iter = 16;
-		const int max_rot  = 4;
 		
 		for(int i = 0; i < max_rot; ++i)
 		{

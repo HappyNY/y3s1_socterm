@@ -2,8 +2,15 @@
 #include <stdint.h>
 #include <system.h>
 #include <altera_avalon_pio_regs.h>
+#include <stdbool.h>
 #include "utils.h"
 
+////////////////////////////////////////////////////////
+// FLAGS
+////////////////////////////////////////////////////////
+#ifndef GPPCU_ENABLE_UNCONDITIONAL_BUBBLE_GENERATION 
+#define GPPCU_ENABLE_UNCONDITIONAL_BUBBLE_GENERATION 1
+#endif
 ////////////////////////////////////////////////////////
 // CONSTANTS
 ////////////////////////////////////////////////////////
@@ -59,7 +66,10 @@ typedef enum GPPCU_REGISTER {
     REG00, REG01, REG02, REG03, REG04, REG05, REG06, REG07, 
     REG08, REG09, REG10, REG11, REG12, REG13, REG14, REG15, 
     REG16, REG17, REG18, REG19, REG20, REG21, REG22, REG23, 
-    REG24, REG25, REG26, REG27, REG28, REG29, REG30, REG31
+    REG24, REG25, REG26, REG27, REG28, REG29, REG30, REG31,
+
+    REG0 = 0, REG1, RE02, REG3, REG4, REG5, REG6, REG7,
+    REG8, REG9, REGA, REGB, REGC, REGD, REGE, REGF,
 } GPPCU_REGISTER;
 
 enum {
@@ -70,7 +80,7 @@ enum {
 // TYPES
 ////////////////////////////////////////////////////////
 
-typedef float swk_gppcu_data_t;
+typedef uint32_t swk_gppcu_data_t;
 typedef uint32_t swk_gppcu_instr_t; 
 struct tagGPPCU
 {
@@ -96,15 +106,16 @@ typedef struct tagGPPCU swk_gppcu;
 void gppcu_init(swk_gppcu* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread); 
 void gppcu_destroy(swk_gppcu* const pp);
 void gppcu_program_autofeed_device(swk_gppcu const* const pp);
-void gppcu_run_autofeed_device();
+void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp );
+void gppcu_run_autofeed_device( swk_gppcu const* const pp );
 
 void gppcu_clear_instr(swk_gppcu* const pp); 
 
 void gppcu_init_task(swk_gppcu *const pp, uint8_t WordsPerTask, uint16_t NumTasks);
 
 void gppcu_stat(
-    BOOL* poIsRunning, 
-    BOOL* poIsDone, 
+    bool* poIsRunning, 
+    bool* poIsDone, 
     uint8_t* poSzPerTask, 
     uint8_t* poPmemEnd,
     uint8_t* poPmemHead,
@@ -128,7 +139,13 @@ void gppcu_read(
     uint8_t ElementSizeInWords, 
     uint32_t ofst
 );
-
+// Assign to constant memory
+void gppcu_write_const(
+    swk_gppcu* pp,
+    swk_gppcu_data_t const * const data,
+    uint32_t ofst,
+    uint32_t size
+);
 // queue instruction
 
 #define GPPCU_ASSEMBLE_OPR(COND, OPR, S_EN) (((uint32_t)(COND) << 28) | ((uint32_t)(OPR) << 23) | ((uint32_t)(S_EN) << 22))
@@ -165,7 +182,7 @@ static inline void gppcu_arith_s(
     swk_gppcu* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
-    BOOL s,
+    bool s,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER regb,
     int8_t imm7 )
@@ -179,7 +196,7 @@ static inline void gppcu_arith_0(
     swk_gppcu* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
-    BOOL s,
+    bool s,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega )
 {
@@ -192,7 +209,7 @@ static inline void gppcu_arith_0(
 static inline void gppcu_mvi(
     swk_gppcu* const pp,
     GPPCU_CONDTION cond,
-    BOOL s,
+    bool s,
     GPPCU_REGISTER regd,
     int32_t imm17 )
 {
@@ -206,7 +223,7 @@ static inline void gppcu_arith_a(
     swk_gppcu* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
-    BOOL s,
+    bool s,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega,
     GPPCU_REGISTER regb,
@@ -222,7 +239,7 @@ static inline void gppcu_arith_b(
     swk_gppcu* const pp,
     GPPCU_CONDTION cond,
     GPPCU_OPERATION opr,
-    BOOL s,
+    bool s,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega,
     int16_t imm12 )
@@ -243,7 +260,7 @@ static inline void gppcu_fp_arith(
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, opr, 0, regd, rega, 0, regb )
-    );
+    ); 
 }
 static inline void gppcu_fp_0(
     swk_gppcu* const pp,
@@ -255,7 +272,7 @@ static inline void gppcu_fp_0(
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, opr, 0, regd, rega, 0, 0 )
-    );
+    ); 
 } 
 static inline void gppcu_ldl(
     swk_gppcu* const pp,
@@ -275,7 +292,7 @@ static inline void gppcu_stl(
     GPPCU_REGISTER data,
     GPPCU_REGISTER addr,
     uint8_t ofst )
-{
+{ 
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, OPR_STL, 0, 0, data, ofst, addr )
@@ -286,7 +303,7 @@ static inline void gppcu_ldci(
     GPPCU_CONDTION cond,
     GPPCU_REGISTER dest,
     uint32_t addr )
-{
+{ 
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_C( cond, OPR_LDCI, 0, dest, addr )
