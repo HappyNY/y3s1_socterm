@@ -46,7 +46,7 @@ static inline void gppcu_constant_wr( uint32_t CMD, uint32_t DATOUT, uint16_t Ad
     IOWR_ALTERA_AVALON_PIO_DATA( DATOUT, Data );
     IOWR_ALTERA_AVALON_PIO_DATA( CMD, cmd );
     IOWR_ALTERA_AVALON_PIO_DATA( CMD, GPPCU_CMD_CLK | cmd );
-    IOWR_ALTERA_AVALON_PIO_DATA( CMD, ~GPPCU_CMD_CLK & cmd ); 
+    IOWR_ALTERA_AVALON_PIO_DATA( CMD, ~GPPCU_CMD_CLK & cmd );
 }
 void gppcu_device_command( uint32_t CMD, uint8_t lparam, uint16_t command )
 {
@@ -58,7 +58,7 @@ void gppcu_device_command( uint32_t CMD, uint8_t lparam, uint16_t command )
     IOWR_ALTERA_AVALON_PIO_DATA( CMD, ~GPPCU_CMD_CLK | cmd );
 }
 
-void gppcu_stat( bool * poIsRunning, bool * poIsDone, uint8_t * poSzPerTask, uint8_t * poPmemEnd, uint8_t * poPmemHead, uint8_t * poNumCycles, uint8_t * poCurCycleIdx )
+void gppcu_stat( bool* poIsRunning, bool* poIsDone, uint8_t * poSzPerTask, uint8_t * poPmemEnd, uint8_t * poPmemHead, uint8_t * poNumCycles, uint8_t * poCurCycleIdx )
 {
     GPPCU_PARAMTERS;
     uint32_t cmd = ( GPPCU_CMD_STAT << 24 );
@@ -111,7 +111,7 @@ enum {
 static inline bool instr_useregd( uint8_t opc )
 {
     switch ( opc )
-    { 
+    {
     case OPR_NOP:      return false;
     case OPR_S_MOV:    return true;
     case OPR_S_MVN:    return true;
@@ -232,10 +232,10 @@ void gppcu_program_autofeed_device( swk_gppcu const* const pp )
 }
 
 char* instr_to_string( char* buff64, swk_gppcu_instr_t instr )
-{ 
+{
     char* head = buff64;
     int space[] = { 4, 5, 1, 5, 5, 7, 5 };
-    memset( buff64, '0', 64 ); 
+    memset( buff64, '0', 64 );
     int* c = space;
     int cnt = 32;
     while ( cnt-- )
@@ -252,8 +252,16 @@ char* instr_to_string( char* buff64, swk_gppcu_instr_t instr )
     return head;
 }
 
+#define NUM_REG 32
+#define PARALLEL_CNT 3
+#define REG_PER_THREAD (NUM_REG / PARALLEL_CNT)
+#define BUBBLES 1 
+
+const uint8_t REGPIVOT = REG_PER_THREAD - 1;
+
 void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
 {
+    int pcnt;
     swk_gppcu_instr_t const* lphead = pp->marr;
     swk_gppcu_instr_t const* const lpend = pp->marr + pp->mnum;
 
@@ -261,24 +269,34 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RESETPRG, 0 );
 
     // IMPORTANT !!! TASK MEMORY AND CYCLE ARE ADJUSTED ...
-    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem * 2);
-    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + 1 ) / 2 );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem * PARALLEL_CNT );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + PARALLEL_CNT - 1 ) / PARALLEL_CNT );
 
     // REGF will be automatically set as pivot register 
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 ); 
-    gppcu_push_instr(
-        pp->MMAP_CMDOUT,
-        pp->MMAP_DATOUT,
-        GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_LDCI, 0, REG15, 0 )
-    ); 
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr(
         pp->MMAP_CMDOUT,
         pp->MMAP_DATOUT,
-        GPPCU_ASSEMBLE_INSTRUCTION_B( COND_ALWAYS, OPR_B_ADI, 0, REG31, REG15, pp->mtaskmem )
-    ); 
+        GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_LDCI, 0, REGPIVOT, 0 )
+    );
+    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+    for ( pcnt = 0; pcnt < PARALLEL_CNT; ++pcnt )
+    {
+        gppcu_push_instr(
+            pp->MMAP_CMDOUT,
+            pp->MMAP_DATOUT,
+            GPPCU_ASSEMBLE_INSTRUCTION_B( 
+                COND_ALWAYS, 
+                OPR_B_ADI, 
+                0, 
+                REGPIVOT + REG_PER_THREAD * ( pcnt + 1 ),
+                REGPIVOT, 
+                pp->mtaskmem * ( pcnt + 1 ) 
+            )
+        );
+    } 
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
 
@@ -289,10 +307,11 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
     // int8_t prev_d = -1;
     while ( lphead < lpend ) {
         // @todo. verify hardware stall generator and remove this
-        swk_gppcu_instr_t const instr = *lphead++;  
+        swk_gppcu_instr_t const instr = *lphead++;
 
         // @parallel instruction
-        swk_gppcu_instr_t parallel_instr[1] = { instr };
+        swk_gppcu_instr_t parallel_instr[PARALLEL_CNT];
+
         const uint8_t opc = ( instr >> 23 ) & 0x1f;
 
         // don't repeat nop
@@ -303,25 +322,38 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
         }
 
         // Parallelize
-        if ( instr_userega( opc ) ) {
-            parallel_instr[0] += 16 << 12; 
-        }
-        if ( instr_useregb( opc ) ) {
-            parallel_instr[0] += 16 << 0; 
-        }
-        if ( instr_useregd( opc ) ) { 
-            parallel_instr[0] += 16 << 17; 
+        // gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, instr );
+
+        for ( pcnt = 0; pcnt < PARALLEL_CNT; pcnt++ )
+        {
+            swk_gppcu_instr_t* const pinstr = parallel_instr + pcnt;
+            const uint8_t toadd = ( pcnt ) * REG_PER_THREAD;
+
+            pinstr[0] = instr;
+            if ( instr_userega( opc ) ) {
+                pinstr[0] += toadd << 12;
+            }
+            if ( instr_useregb( opc ) ) {
+                pinstr[0] += toadd << 0;
+            }
+            if ( instr_useregd( opc ) ) {
+                pinstr[0] += toadd << 17;
+            }
+            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, pinstr[0] );
+            char buff[124];
+            instr_to_string( buff, pinstr[0] );
+            printf( "putting instr %s\n", buff );
         }
 
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, instr );  
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, parallel_instr[0] );   
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+        for ( pcnt = 0; pcnt < BUBBLES; ++pcnt )
+        {
+            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+        } 
     }
 }
 
 void gppcu_run_autofeed_device( swk_gppcu const* const pp )
-{ 
+{
     // Run
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RUNSTOP, 0 );
     // wait for few cycles
@@ -330,13 +362,13 @@ void gppcu_run_autofeed_device( swk_gppcu const* const pp )
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RUNSTOP, 1 );
 }
 
-void gppcu_clear_instr( swk_gppcu * const pp )
+void gppcu_clear_instr( swk_gppcu* const pp )
 {
     pp->mnum = 0;
 }
 
 void gppcu_write(
-    swk_gppcu * pp,
+    swk_gppcu* pp,
     swk_gppcu_data_t const* const data,
     uint8_t ElementSizeInWords,
     uint32_t ofst // Means local space offset on task domain. Units in word
@@ -371,8 +403,8 @@ void gppcu_write(
 }
 
 void gppcu_read(
-    swk_gppcu * pp,
-    swk_gppcu_data_t * const dst,
+    swk_gppcu* pp,
+    swk_gppcu_data_t* const dst,
     uint32_t Capacity,
     uint8_t ElementSizeInWords,
     uint32_t ofst
@@ -413,9 +445,9 @@ void gppcu_read(
     }
 }
 
-void gppcu_write_const( swk_gppcu* pp, swk_gppcu_data_t const* const data, uint32_t ofst, uint32_t size )
+void gppcu_write_const( swk_gppcu * pp, swk_gppcu_data_t const* const data, uint32_t ofst, uint32_t size )
 {
-    swk_gppcu_data_t const* lphead = data, *lpend = data + size;
+    swk_gppcu_data_t const* lphead = data, * lpend = data + size;
 
     while ( lphead != lpend )
     {

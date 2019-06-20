@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>2019. 6. 20 오후 8:30:35</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1561030235510</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>2019. 6. 20 오후 9:37:28</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1561034248455</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>D:\__LocalWorkspace\Edu_ActiveProjects\y3s1_soc_term\project\software\Hello_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\SYSTEM.sopcinfo</SopcDesignFile>

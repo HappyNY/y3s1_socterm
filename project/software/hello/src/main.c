@@ -13,7 +13,8 @@
 
 void wait(int val)
 {
-	for(int i =0; i < val; ++i)
+    volatile int i;
+    for ( i = 0; i < val; ++i )
 	{
 		// nop;
 	}
@@ -68,7 +69,8 @@ void monitor( int num_thr, int begin, int num_mem )
 int main()
 { 
 	printf("Hello from Nios II! ... Launching ... \n");
-     
+    
+
     const int max_iter = 16;
     const int max_rot = 4;
 
@@ -82,7 +84,6 @@ int main()
     gppcu_init_task( &gppcu, 4, 240 );
 
     gppcu_clear_instr( &gppcu );
-
 	//**//*
     swk_gppcu_data_t initdat[240];
     int i;
@@ -94,7 +95,7 @@ int main()
     
     // reg01 should be 2.
     // gppcu_ldci( &gppcu, COND_ALWAYS, REGF, 0 ); 
-    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REGF, 0 ); 
+    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REGPIVOT, 0 ); 
     gppcu_arith_b( &gppcu, COND_ALWAYS, OPR_B_ADI, false, REG1, REG0, 1 );  
     gppcu_stl( &gppcu, COND_ALWAYS, REG0, REG0, 1 );  
     gppcu_stl( &gppcu, COND_ALWAYS, REG1, REG0, 2 );  
@@ -117,12 +118,8 @@ int main()
         mem_clr( max_rot, max_iter );  
         gppcu_write( &gppcu, initdat, 1, 0 ); 
 
-        // Program & run
-        /**//*
-        gppcu_program_autofeed_device( &gppcu );
-        /*/
-        gppcu_program_autofeed_device_parallel( &gppcu );
-        //*/
+        // Program & run 
+        gppcu_program_autofeed_device_parallel( &gppcu ); 
         gppcu_run_autofeed_device( &gppcu );
 
         // Display dat
