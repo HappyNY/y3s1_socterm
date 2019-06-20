@@ -8,7 +8,6 @@
 #include <stdlib.h> 
 #include "gpccu_assembly_macros.h"
 
-#define countof(v) (sizeof(v)/sizeof(*v))
 #define BOOL int
 #define TRUE 1
 #define FALSE 0
@@ -70,10 +69,114 @@ void monitor( int num_thr, int begin, int num_mem )
 
 int main()
 {
+    printf( "Hell, nios ! \n" );
+    mem_clr( 24, 120 );
+
+    swk_gppcu_t gppcu;
+
+    printf( "init ..\n" );
+    gppcu_init( &gppcu, 24, 1024, 512, PIO_CMD_BASE, PIO_DATAOUT_BASE, PIO_DATAIN_BASE );
+
+    printf( "upload ..\n" );
+
+    swk_mesh_t mesh;
+    mesh_init( &mesh, 1024, 3072 );
+
+    printf( "box create ..\n" );
+    mesh_createbox( &mesh, 25 );
+    mesh_subdevide( &mesh );
+
+    swk_meshinfo_t mesh_inst;
+    mesh_inst.pmesh = &mesh;
+
+    vec3_zero( &mesh_inst.location );
+    vec3_zero( &mesh_inst.rotation );
+    vec3_one( &mesh_inst.scale );
+
+    mesh_inst.rotation.y = 45.0f;
+    mesh_inst.rotation.x = 45.0f;
+
+    swk_cam_t cam;
+    cam.far = 250.f;
+    cam.near = 1.f;
+    cam.fov = 85.0f;
+    vec3( &cam.location, 0.f, 0.f, 35.f );
+    vec3_zero( &cam.rotation );
+
+    swk_object_constant_t result;
+
+    struct vec3i* output = malloc( sizeof( struct vec3i ) * 256 );
+    app_upload_vertices( &gppcu, &mesh );
+    app_upload_program( &gppcu );
+     
+    while ( true )
+    {
+        app_calc_object_constant( &result, &cam, &mesh_inst );
+
+        printf( "writing constant ..\n" );
+        printf( "uploading vertices..\n" );  
+
+        app_upload_object_constant( &gppcu, &result );
+
+        app_run_vertex_shader_async( &gppcu );
+
+
+        int row, col;
+        for ( row = 0; row < 4; row++ )
+        {
+            for ( col = 0; col < 4; col++ )
+            {
+                printf( "%f ", result.world_view_proj[row * 4 + col] );
+            }
+            printf( "\n" );
+        }
+        
+        // wait( 10 );
+        while ( !display_stat_is_done() );
+        monitor( 8, 0, 24 );
+
+        mesh_inst.rotation.y += 0.16f;
+        mesh_inst.rotation.x += 0.05f;
+        mesh_inst.rotation.z += 0.03f;
+
+        // What it should be ...
+        // int i; 
+        // struct vec3i smples[128];
+        // for ( i = 0; i < mesh.num_vertices; ++i )
+        // {
+        //     mfloat_t smplvtex[4];
+        //     vec3_assign( smplvtex, &mesh.vertices[i] );
+        //     smplvtex[3] = 1.f;
+        //     printf( "Vector at %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //     vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
+        //     printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //     vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
+        //     printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //     // smplvtex[0] += 0.5f;
+        //     // smplvtex[1] += 0.5f;
+        //     // smplvtex[0] *= result.width;
+        //     // smplvtex[1] *= result.height; 
+        //     smplvtex[0] += result.width /2;
+        //     smplvtex[1] += result.height/2;
+        // 
+        //     printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] ); 
+        // 
+        //     vec3i_assign_vec3( &smples[i], smplvtex ); 
+        // } 
+
+        app_render_on_screen( smples, mesh.indices, mesh.num_indices );
+    }
+    
+    monitor( 4, 0, 8 );
+    free( output );
+}
+
+int main__cxt()
+{
     swk_gppcu_t gppcu;
 
     gppcu_init( &gppcu, 24, 1024, 512, PIO_CMD_BASE, PIO_DATAOUT_BASE, PIO_DATAIN_BASE );
-    gppcu_init_task( &gppcu, 8, 240 );
+    gppcu_init_task( &gppcu, 5, 240 );
      
     mem_clr( 12, 24 );
 
@@ -81,11 +184,11 @@ int main()
 
     gp_set_gppcu_ptr( &gppcu );  
 
-    gp_mvi( 0x0, 3 );
-    gp_mvi( 0x1, 4 );
+    gp_mvi( 0x5, 3 );
+    gp_mvi( 0x6, 4 );
      
-    gp_itof( 0x0, 0x0 );
-    gp_itof( 0x1, 0x1 );
+    gp_itof( 0x0, 0x5 );
+    gp_itof( 0x1, 0x6 );
     
     gp_fmul( 0x2, 0x1, 0x0 );
     gp_fdiv( 0x3, 0x1, 0x0 );
@@ -102,8 +205,8 @@ int main()
 
     while ( display_stat_is_done() == false )
     {
-        gppcu_program_autofeed_device_parallel( &gppcu );
-        gppcu_run_autofeed_device( &gppcu );
+        // gppcu_program_autofeed_device_parallel( &gppcu );
+        // gppcu_run_autofeed_device( &gppcu );
 
         wait( 1000000 );
     }
@@ -113,7 +216,7 @@ int main()
     while ( 1 );
 }
 
-int main__d()
+int maincc()
 {
     printf( "Hello from Nios II! ... Launching ... \n" );
      
@@ -167,7 +270,7 @@ int main__d()
     }
 }
 
-int main__2()
+int main_vv()
 {
     swk_meshinfo_t meshinfo;
     vec3_zero( &meshinfo.location );
@@ -193,14 +296,15 @@ int main__2()
     {
         vec4( smplvtex, x, y, z, 1.f );
         vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
-        printf( "Vector at %f, %f, %f\n", x, y, z );
-        printf( "Translate %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2] );
-        vec3_divide_f( smplvtex, smplvtex, smplvtex[2] );
+        printf( "Vector at %f, %f, %f, %f\n", x, y, z, 1.0f );
+        printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
+        printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
         smplvtex[0] += 0.5f;
         smplvtex[1] += 0.5f;
         smplvtex[0] *= result.width;
         smplvtex[1] *= result.height;
-        printf( "Result    %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2] );
+        printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
 
         wait( 5000000 );
 

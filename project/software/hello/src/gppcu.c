@@ -123,7 +123,7 @@ void gppcu_init( swk_gppcu_t* const pp, int32_t num_threads, int32_t Capacity, i
 void gppcu_init_task( swk_gppcu_t * const pp, uint8_t WordsPerTask, uint16_t NumTasks )
 {
     pp->ro_numtask = NumTasks;
-    pp->mtaskcycle = NumTasks / pp->mnumthr + 1;
+    pp->mtaskcycle = ( NumTasks + pp->mnumthr - 1 ) / pp->mnumthr;
     pp->mtaskmem = WordsPerTask;
     pp->ro_taskmaxcycle = pp->ro_max_word_per_thread / WordsPerTask;
     passert( NumTasks < pp->ro_taskmaxcycle * pp->mnumthr, "Task number has set too many." );
@@ -286,7 +286,7 @@ char* instr_to_string( char* buff64, swk_gppcu_instr_t instr )
 #define NUM_REG 32
 #define PARALLEL_CNT 3
 #define REG_PER_THREAD (NUM_REG / PARALLEL_CNT)
-#define BUBBLES 1 
+#define BUBBLES 1
 
 const uint8_t REGPIVOT = REG_PER_THREAD - 1;
 
@@ -376,11 +376,27 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
             // printf( "putting instr %s\n", buff );
         }
 
+        if ( OPR_0_ITOF <= opc && opc <= OPR_0_FSQRT )
+        {
+            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 ); 
+        }
         for ( pcnt = 0; pcnt < BUBBLES; ++pcnt )
         {
             gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
         } 
     }
+}
+
+void gppcu_init_task_parallel( swk_gppcu_t* const pp, uint8_t WordsPerTask, uint16_t NumTasks )
+{
+    pp->ro_numtask = NumTasks;
+    pp->mtaskcycle = ( NumTasks + pp->mnumthr - 1 ) / pp->mnumthr;
+    pp->mtaskmem = WordsPerTask;
+    pp->ro_taskmaxcycle = pp->ro_max_word_per_thread / WordsPerTask;
+    passert( NumTasks < pp->ro_taskmaxcycle * pp->mnumthr, "Task number has set too many." );
+
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem * PARALLEL_CNT );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + PARALLEL_CNT - 1 ) / PARALLEL_CNT );
 }
 
 void gppcu_run_autofeed_device( swk_gppcu_t const* const pp )

@@ -19,11 +19,39 @@ typedef struct swk_mesh
     uint16_t* indices; // must be 3's multiplicand
     uint16_t num_vertices;
     uint16_t num_indices;
+
+    uint16_t cap_vtx, cap_idx;
 } swk_mesh_t;
+
+// mesh generation
+void mesh_init(
+    swk_mesh_t* const mesh,
+    uint16_t cap_vtx,
+    uint16_t cap_idx
+);
+
+void mesh_subdevide(
+    swk_mesh_t* const mesh
+);
+
+void mesh_createbox(
+    swk_mesh_t* const mesh,
+    float size
+);
+
+void mesh_destroy(
+    swk_mesh_t* const mesh
+);
+
+void mesh_create_sphere(
+    swk_mesh_t* const mesh,
+    float radius,
+    uint8_t num_subdivision
+);
 
 typedef struct swk_meshinfo
 {
-    struct swk_mesh mesh;
+    struct swk_mesh* pmesh;
     struct vec3 location;
     struct vec3 rotation;
     struct vec3 scale;
@@ -48,11 +76,12 @@ typedef struct swk_object_constant
 // forward decl
 struct swk_gppcu;
 
+
 // generate matrix
 void app_calc_object_constant(
     struct swk_object_constant* const pp,
     struct swk_cam const* const cam,
-    struct swk_meshinfo const* const mesh
+    swk_meshinfo_t const* const mesh
 );
 
 // initializations
@@ -86,9 +115,8 @@ void app_download_points(
 void app_render_on_screen(
     struct vec3i const* const points,
     uint16_t const* const indices,
-    uint16_t* const lcdbuff_addr
+    uint16_t num_idx 
 );
-
 
 
 ///////////////////////////////////////
@@ -98,6 +126,6 @@ typedef struct swk_scr_desc_rgb16 {
     uint16_t* lpbuffer;
     uint16_t width;
     uint16_t height;
-} swk_scr_desc_rgb16;
+} swk_scr_desc_rgb16_t;
 
-void rgb16_drawline( swk_scr_desc_rgb16* const pp, int16_t x0, int16_t y0, const int16_t x1, const int16_t y1 );
+void rgb16_drawline( swk_scr_desc_rgb16_t* const pp, int16_t x0, int16_t y0, const int16_t x1, const int16_t y1 );

@@ -124,7 +124,8 @@ void gppcu_run_autofeed_device( swk_gppcu_t const* const pp );
 
 void gppcu_clear_instr(swk_gppcu_t* const pp); 
 
-void gppcu_init_task(swk_gppcu_t *const pp, uint8_t WordsPerTask, uint16_t NumTasks);
+void gppcu_init_task( swk_gppcu_t* const pp, uint8_t WordsPerTask, uint16_t NumTasks );
+void gppcu_init_task_parallel(swk_gppcu_t *const pp, uint8_t WordsPerTask, uint16_t NumTasks);
 
 void gppcu_stat(
     bool* poIsRunning, 
@@ -271,11 +272,11 @@ static inline void gppcu_fp_arith(
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega,
     GPPCU_REGISTER regb )
-{
+{ 
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, opr, 0, regd, rega, 0, regb )
-    ); 
+    );  
 }
 static inline void gppcu_fp_0(
     swk_gppcu_t* const pp,
@@ -283,12 +284,12 @@ static inline void gppcu_fp_0(
     GPPCU_OPERATION opr,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega )
-{
+{ 
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, opr, 0, regd, rega, 0, 0 )
-    ); 
-} 
+    );  
+}
 static inline void gppcu_ldl(
     swk_gppcu_t* const pp,
     GPPCU_CONDTION cond,

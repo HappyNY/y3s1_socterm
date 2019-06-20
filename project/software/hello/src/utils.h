@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define countof(v) (sizeof(v)/sizeof(*v))
+
 // Macro definitions
 #define GPPCU_ENABLE_UNCONDITIONAL_BUBBLE_GENERATION 1
 
