@@ -1,15 +1,20 @@
 #include "gppcu.h"
 
+enum gp_regs{
+    gp_reg0, gp_reg1, gp_reg2, gp_reg3, gp_reg4, gp_reg5, gp_reg6, gp_reg7, 
+    gp_reg8, gp_reg9, gp_rega, gp_regb, gp_regc, gp_regd, gp_rege, gp_regf,
+};
+
 // @WARNING ... Should not include this file on header !
 // only valid on local scope, cannot be redefined in same scope !
-#define gp_set_gppcu_ptr(ptr) swk_gppcu* const GPPCU_INSTANCE____ = ptr
+#define gp_set_gppcu_ptr(ptr) swk_gppcu_t* const GPPCU_INSTANCE____ = ptr
 #define gp_fmul(rd, ra, rb) gppcu_fp_arith(GPPCU_INSTANCE____, COND_ALWAYS, OPR_A_FMUL, rd, ra, rb)
 #define gp_fadd(rd, ra, rb) gppcu_fp_arith(GPPCU_INSTANCE____, COND_ALWAYS, OPR_A_FADD, rd, ra, rb)
 #define gp_fsub(rd, ra, rb) gppcu_fp_arith(GPPCU_INSTANCE____, COND_ALWAYS, OPR_A_FSUB, rd, ra, rb)
 #define gp_fdiv(rd, ra, rb) gppcu_fp_arith(GPPCU_INSTANCE____, COND_ALWAYS, OPR_A_FDIV, rd, ra, rb)
 #define gp_fsqrt(rd, ra)    gppcu_fp_0(GPPCU_INSTANCE____, COND_ALWAYS, OPR_0_FSQRT, rd, ra)
-#define gp_ftoi(rd, ra)     gppcu_fp_0(GPPCU_INSTANCE____, COND_ALWAYS, OPR_0_FSQRT, rd, ra)
-#define gp_itof(rd, ra)     gppcu_fp_0(GPPCU_INSTANCE____, COND_ALWAYS, OPR_0_FSQRT, rd, ra)
+#define gp_ftoi(rd, ra)     gppcu_fp_0(GPPCU_INSTANCE____, COND_ALWAYS, OPR_0_FTOI, rd, ra)
+#define gp_itof(rd, ra)     gppcu_fp_0(GPPCU_INSTANCE____, COND_ALWAYS, OPR_0_ITOF, rd, ra)
 
 #define gp_ldl(dest, addr, ofst)      gppcu_ldl(GPPCU_INSTANCE____, COND_ALWAYS, dest,addr,ofst)
 #define gp_stl(data, addr, ofst)      gppcu_stl(GPPCU_INSTANCE____, COND_ALWAYS, data,addr,ofst)
