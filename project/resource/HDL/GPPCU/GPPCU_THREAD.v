@@ -171,7 +171,7 @@ module GPPCU_THREAD # (
     );
     
     // Stall signal resolves automatically when the stage arrives DONE.
-    assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP] && fp_stage != FP_IDLE; 
+    assign fp_busy = cw_valid_exec && fp_stage != FP_DONE && iCW_EXEC[CW_FPOP]; 
     
     // No reset logic. Always wait for calculation done
     always @(posedge iACLK) 
