@@ -84,7 +84,7 @@ int main()
 
     printf( "box create ..\n" );
     mesh_createbox( &mesh, 25 );
-    mesh_subdevide( &mesh );
+    mesh_subdevide( &mesh ); 
 
     swk_meshinfo_t mesh_inst;
     mesh_inst.pmesh = &mesh;
@@ -105,7 +105,7 @@ int main()
 
     swk_object_constant_t result;
 
-    struct vec3i* output = malloc( sizeof( struct vec3i ) * 256 );
+    struct vec3i* output = malloc( sizeof( struct vec3i ) * 1024 );
     app_upload_vertices( &gppcu, &mesh );
     app_upload_program( &gppcu );
      
@@ -113,58 +113,49 @@ int main()
     {
         app_calc_object_constant( &result, &cam, &mesh_inst );
 
-        printf( "writing constant ..\n" );
-        printf( "uploading vertices..\n" );  
+        // printf( "writing constant ..\n" );
+        // printf( "uploading vertices..\n" );  
 
         app_upload_object_constant( &gppcu, &result );
 
-        app_run_vertex_shader_async( &gppcu );
-
-
-        int row, col;
-        for ( row = 0; row < 4; row++ )
-        {
-            for ( col = 0; col < 4; col++ )
-            {
-                printf( "%f ", result.world_view_proj[row * 4 + col] );
-            }
-            printf( "\n" );
-        }
+        app_run_vertex_shader_async( &gppcu ); 
         
         // wait( 10 );
-        while ( !display_stat_is_done() );
-        monitor( 8, 0, 24 );
+        while ( !gppcu_is_done( &gppcu, 0 ) );
 
-        mesh_inst.rotation.y += 0.16f;
-        mesh_inst.rotation.x += 0.05f;
-        mesh_inst.rotation.z += 0.03f;
+        app_download_points( &gppcu, output, 0xffff );
+        // monitor( 8, 0, 24 );
+
+        mesh_inst.rotation.y += 0.016f;
+        mesh_inst.rotation.x += 0.005f;
+        mesh_inst.rotation.z += 0.003f;
 
         // What it should be ...
-        // int i; 
-        // struct vec3i smples[128];
-        // for ( i = 0; i < mesh.num_vertices; ++i )
-        // {
-        //     mfloat_t smplvtex[4];
-        //     vec3_assign( smplvtex, &mesh.vertices[i] );
-        //     smplvtex[3] = 1.f;
-        //     printf( "Vector at %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //     vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
-        //     printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //     vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
-        //     printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //     // smplvtex[0] += 0.5f;
-        //     // smplvtex[1] += 0.5f;
-        //     // smplvtex[0] *= result.width;
-        //     // smplvtex[1] *= result.height; 
-        //     smplvtex[0] += result.width /2;
-        //     smplvtex[1] += result.height/2;
-        // 
-        //     printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] ); 
-        // 
-        //     vec3i_assign_vec3( &smples[i], smplvtex ); 
-        // } 
+        int i; 
+        struct vec3i smples[128];
+        //for ( i = 0; i < mesh.num_vertices; ++i )
+        //{
+        //    mfloat_t smplvtex[4];
+        //    vec3_assign( smplvtex, &mesh.vertices[i] );
+        //    smplvtex[3] = 1.f;
+        //    printf( "Vector at %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //    vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
+        //    printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //    vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
+        //    printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+        //    // smplvtex[0] += 0.5f;
+        //    // smplvtex[1] += 0.5f;
+        //    // smplvtex[0] *= result.width;
+        //    // smplvtex[1] *= result.height; 
+        //    smplvtex[0] += result.width /2;
+        //    smplvtex[1] += result.height/2;
+        //
+        //    printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] ); 
+        //
+        //    vec3i_assign_vec3( &smples[i], smplvtex ); 
+        //} 
 
-        app_render_on_screen( smples, mesh.indices, mesh.num_indices );
+        app_render_on_screen( output, mesh.indices, mesh.num_indices );
     }
     
     monitor( 4, 0, 8 );

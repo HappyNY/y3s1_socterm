@@ -38,7 +38,7 @@ void mesh_subdevide( swk_mesh_t* const mesh )
     uint16_t* pidx_head = &mesh->num_indices;
     uint16_t* vtex_idx = &mesh->num_vertices;
 
-    for ( idx = 0; idx < initial_max - 2; idx += 3 )
+    for ( idx = 0; idx < initial_max; idx += 3 )
     {
         //      2
         //   4     6
@@ -104,6 +104,17 @@ void mesh_createbox( swk_mesh_t* const mesh, float size )
         {size, -size, size}
     };
 
+    float vertices2[][3] = {
+        {-size, -size, -size},
+        {-size, size, -size},
+        {size, size, -size},
+        {size, -size, -size},
+        {-size, -size, size},
+        {-size, size, size},
+        {size, size, size},
+        {size, -size, size}
+    };
+
     uint16_t indices[] = {
         0, 1, 2,
         0, 2, 3,
@@ -122,14 +133,46 @@ void mesh_createbox( swk_mesh_t* const mesh, float size )
 
         4, 0, 3,
         4, 3, 7,
-    }; 
+    };
+
+    uint16_t indices2[] = {
+        0, 1, 2,
+        0, 2, 3,
+
+        4, 6, 5,
+        4, 7, 6,
+
+        4, 5, 1,
+        4, 1, 0,
+
+        3, 2, 6,
+        3, 6, 7,
+
+        1, 5, 6,
+        1, 6, 2,
+
+        4, 0, 3,
+        4, 3, 7,
+    };
+
+    int i;
+    for ( i = 0; i < countof( vertices2 ); ++i )
+    {
+        vertices2[i][0] += size;
+        vertices2[i][1] += size;
+        vertices2[i][2] += size;
+    }
+    for ( i = 0; i < countof(indices2); i++ )
+    {
+        indices2[i] += 8;
+    }
 
     passert( mesh->cap_vtx > countof( vertices ), "Memory overflow" );
     passert( mesh->cap_idx > countof( indices ), "Memory overflow" );
 
     memcpy( mesh->vertices, vertices, sizeof( vertices ) );
     memcpy( mesh->indices, indices, sizeof( indices ) );
-
+     
     mesh->num_vertices = countof( vertices );
     mesh->num_indices = countof( indices );
 }
@@ -187,8 +230,8 @@ enum
 {
     // constant ofst
     COFST_FLOAT_ONE = 1,
-    COFST_WIDTH = 14,
-    COFST_HEIGHT = 15,
+    COFST_WIDTH_HALF = 14,
+    COFST_HEIGHT_HALF = 15,
     COFST_MAT4_WORLD_VIEW_PROJ = 16,
 
     // local memory offset ... task space 
@@ -253,34 +296,19 @@ void app_upload_program( struct swk_gppcu* const pp )
         }
         gp_stl( acc, REGPIVOT, OFST_TABLE + col );
     }
-     
-    // -- Divide by z
+
+    // Add half size of screen and cast to int
     gp_ldl( rx, REGPIVOT, OFST_TABLE + 0 );
-    gp_ldl( ry, REGPIVOT, OFST_TABLE + 1 );
-    gp_ldl( rz, REGPIVOT, OFST_TABLE + 2 );
-    gp_ldl( rw, REGPIVOT, OFST_TABLE + 3 );
-
-    gp_stl( rw, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 3 );
-
-    gp_fdiv( ra, rx, rw );
+    gp_ldci( ra, COFST_WIDTH_HALF );
+    gp_fadd( rb, ra, rx );
+    gp_ftoi( ra, rb );
     gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 0 );
-    //gp_ldci( rb, COFST_WIDTH );
-    //gp_fmul( rc, ra, rb );
-    //gp_ftoi( ra, rc );
-    //gp_stl( rx, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 0 );
 
-    gp_fdiv( ra, ry, rw );
-    gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 1 );
-    //gp_ldci( rb, COFST_HEIGHT );
-    //gp_fmul( rc, ra, rb );
-    //gp_ftoi( ra, rc );
-    //gp_stl( ry, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 1 );
-
-    gp_fdiv( ra, rz, rw );
-    gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 2 );
-    gp_ldci( rb, COFST_HEIGHT );
-    gp_fmul( rz, ra, rb );
-    //gp_stl( rz, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 1 ); 
+    gp_ldl( ry, REGPIVOT, OFST_TABLE + 1 );
+    gp_ldci( ra, COFST_HEIGHT_HALF );
+    gp_fadd( rb, ra, ry );
+    gp_ftoi( ra, rb );
+    gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 1 ); 
 
     gppcu_program_autofeed_device_parallel( pp );
 }
@@ -315,16 +343,20 @@ void app_upload_object_constant( struct swk_gppcu* const gppcu, struct swk_objec
         COFST_MAT4_WORLD_VIEW_PROJ,
         16
     ); 
+
+    float w = obj_constant->width * 0.5f;
+    float h = obj_constant->height * 0.5f;
+
     gppcu_write_const(
         gppcu,
-        &obj_constant->width,
-        COFST_WIDTH,
+        &w,
+        COFST_WIDTH_HALF,
         1
     );
     gppcu_write_const(
         gppcu,
-        &obj_constant->height,
-        COFST_HEIGHT,
+        &h,
+        COFST_HEIGHT_HALF,
         1
     );
      
@@ -377,7 +409,7 @@ void app_render_on_screen( struct vec3i const* const points, uint16_t const* con
         rgb16_drawline( &scrdesc, points[idx1].x, points[idx1].y, points[idx2].x, points[idx2].y );
         rgb16_drawline( &scrdesc, points[idx2].x, points[idx2].y, points[idx0].x, points[idx0].y );
 
-        printf( "Drawing polygons ... %d, [%d, %d, %d]\n", ( idx_end - idx_head ) / 3, idx0, idx1, idx2 );
+        // printf( "Drawing polygons ... %d, [%d, %d, %d]\n", ( idx_end - idx_head ) / 3, idx0, idx1, idx2 );
         idx_head += 3;
     }
 
@@ -386,7 +418,7 @@ void app_render_on_screen( struct vec3i const* const points, uint16_t const* con
 
 void rgb16_drawline( swk_scr_desc_rgb16_t* const pp, int16_t x0, int16_t y0, const int16_t x1, const int16_t y1 )
 {
-    printf( "Rendering ptr .. %d, %d -> %d, %d\n", x0, y0, x1, y1 );
+    // printf( "Rendering ptr .. %d, %d -> %d, %d\n", x0, y0, x1, y1 );
 
     int16_t dx = abs( x1 - x0 );
     int16_t dy = -abs( y1 - y0 );
