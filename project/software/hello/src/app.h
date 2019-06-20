@@ -26,4 +26,9 @@ struct swk_cam
     struct vec3 rotation;
 };
 
-// generate constant matrix
+struct swk_object_constant
+{
+    struct mat4 worldmat;
+};
+
+// generate matrix

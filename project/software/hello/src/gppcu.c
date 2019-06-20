@@ -261,8 +261,8 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_RESETPRG, 0 );
 
     // IMPORTANT !!! TASK MEMORY AND CYCLE ARE ADJUSTED ...
-    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem * 3);
-    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + 2 ) / 3 );
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_SZPERCYCLE, pp->mtaskmem * 2);
+    gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + 1 ) / 2 );
 
     // REGF will be automatically set as pivot register 
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
@@ -270,19 +270,14 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
     gppcu_push_instr(
         pp->MMAP_CMDOUT,
         pp->MMAP_DATOUT,
-        GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_LDCI, 0, REG10, 0 )
+        GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_LDCI, 0, REG15, 0 )
     ); 
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr(
         pp->MMAP_CMDOUT,
         pp->MMAP_DATOUT,
-        GPPCU_ASSEMBLE_INSTRUCTION_B( COND_ALWAYS, OPR_B_ADI, 0, REG20, REG10, pp->mtaskmem )
-    );
-    gppcu_push_instr(
-        pp->MMAP_CMDOUT,
-        pp->MMAP_DATOUT,
-        GPPCU_ASSEMBLE_INSTRUCTION_B( COND_ALWAYS, OPR_B_ADI, 0, REG30, REG10, pp->mtaskmem * 2 )
+        GPPCU_ASSEMBLE_INSTRUCTION_B( COND_ALWAYS, OPR_B_ADI, 0, REG31, REG15, pp->mtaskmem )
     ); 
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
@@ -297,7 +292,7 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
         swk_gppcu_instr_t const instr = *lphead++;  
 
         // @parallel instruction
-        swk_gppcu_instr_t parallel_instr[2] = { instr, instr };
+        swk_gppcu_instr_t parallel_instr[1] = { instr };
         const uint8_t opc = ( instr >> 23 ) & 0x1f;
 
         // don't repeat nop
@@ -309,21 +304,18 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu const* const pp )
 
         // Parallelize
         if ( instr_userega( opc ) ) {
-            parallel_instr[0] += 10 << 12;
-            parallel_instr[1] += 20 << 12;
+            parallel_instr[0] += 16 << 12; 
         }
         if ( instr_useregb( opc ) ) {
-            parallel_instr[0] += 10 << 0;
-            parallel_instr[1] += 20 << 0;
+            parallel_instr[0] += 16 << 0; 
         }
         if ( instr_useregd( opc ) ) { 
-            parallel_instr[0] += 10 << 17;
-            parallel_instr[1] += 20 << 17;
+            parallel_instr[0] += 16 << 17; 
         }
 
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, instr );  
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, parallel_instr[0] );  
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, parallel_instr[1] );  
+        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, parallel_instr[0] );   
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
     }
 }

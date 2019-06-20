@@ -94,7 +94,7 @@ int main()
     
     // reg01 should be 2.
     // gppcu_ldci( &gppcu, COND_ALWAYS, REGF, 0 ); 
-    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REG10, 0 ); 
+    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REGF, 0 ); 
     gppcu_arith_b( &gppcu, COND_ALWAYS, OPR_B_ADI, false, REG1, REG0, 1 );  
     gppcu_stl( &gppcu, COND_ALWAYS, REG0, REG0, 1 );  
     gppcu_stl( &gppcu, COND_ALWAYS, REG1, REG0, 2 );  
