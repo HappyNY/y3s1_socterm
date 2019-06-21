@@ -6,6 +6,7 @@
 #include <string.h>
 #include "app.h"
 #include <stdlib.h> 
+#include <stdarg.h>
 #include "gpccu_assembly_macros.h"
 
 #define BOOL int
@@ -67,6 +68,21 @@ void monitor( int num_thr, int begin, int num_mem )
     }
 }
 
+float reinterpret_float( uint32_t val )
+{
+    return *(float*) & val;
+}
+
+char* spf( char* fmt, ... )
+{
+    va_list va;
+    va_start( va, fmt );
+    static char buff[1024];
+    vsprintf( buff, fmt, va );
+    va_end( va );
+    return buff;
+}
+
 int main()
 {
     printf( "Hell, nios ! \n" );
@@ -75,16 +91,19 @@ int main()
     swk_gppcu_t gppcu;
 
     printf( "init ..\n" );
-    gppcu_init( &gppcu, 24, 1024, 512, PIO_CMD_BASE, PIO_DATAOUT_BASE, PIO_DATAIN_BASE );
+    gppcu_init( &gppcu, 24, 2048, 512, PIO_CMD_BASE, PIO_DATAOUT_BASE, PIO_DATAIN_BASE );
 
     printf( "upload ..\n" );
 
     swk_mesh_t mesh;
-    mesh_init( &mesh, 1024, 3072 );
+    mesh_init( &mesh, 2048, 8096 );
 
     printf( "box create ..\n" );
-    mesh_createbox( &mesh, 25 );
+    mesh_createbox( &mesh, 65 );
     mesh_subdevide( &mesh ); 
+    // mesh_subdevide( &mesh ); 
+    // mesh_subdevide( &mesh );  
+    // mesh.num_indices = 180;
 
     swk_meshinfo_t mesh_inst;
     mesh_inst.pmesh = &mesh;
@@ -105,10 +124,10 @@ int main()
 
     swk_object_constant_t result;
 
-    struct vec3i* output = malloc( sizeof( struct vec3i ) * 1024 );
+    struct vec3i* output = malloc( sizeof( struct vec3i ) * 2048 );
     app_upload_vertices( &gppcu, &mesh );
     app_upload_program( &gppcu );
-     
+
     while ( true )
     {
         app_calc_object_constant( &result, &cam, &mesh_inst );
@@ -121,7 +140,9 @@ int main()
         app_run_vertex_shader_async( &gppcu ); 
         
         // wait( 10 );
-        while ( !gppcu_is_done( &gppcu, 0 ) );
+        while ( !gppcu_is_done( &gppcu, 0 ) ) { 
+            //display_stat_is_done();  
+        };
 
         app_download_points( &gppcu, output, 0xffff );
         // monitor( 8, 0, 24 );
@@ -130,31 +151,85 @@ int main()
         mesh_inst.rotation.x += 0.005f;
         mesh_inst.rotation.z += 0.003f;
 
-        // What it should be ...
-        int i; 
-        struct vec3i smples[128];
-        //for ( i = 0; i < mesh.num_vertices; ++i )
-        //{
-        //    mfloat_t smplvtex[4];
-        //    vec3_assign( smplvtex, &mesh.vertices[i] );
-        //    smplvtex[3] = 1.f;
-        //    printf( "Vector at %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //    vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
-        //    printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //    vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
-        //    printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
-        //    // smplvtex[0] += 0.5f;
-        //    // smplvtex[1] += 0.5f;
-        //    // smplvtex[0] *= result.width;
-        //    // smplvtex[1] *= result.height; 
-        //    smplvtex[0] += result.width /2;
-        //    smplvtex[1] += result.height/2;
-        //
-        //    printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] ); 
-        //
-        //    vec3i_assign_vec3( &smples[i], smplvtex ); 
-        //} 
+        // verify whether vertex has uploaded successfully
+        int i, thr = 0, ofst = 0; 
+        int rowcnt = 0;
+        char lines[10][512];
+        char* ptrs[10];
+        if ( 0 ) for ( i = 0; i < mesh.num_vertices; ++i )
+        {
+            if ( rowcnt++ % 8 == 0 )
+            {
+                int c;
+                if ( rowcnt )
+                {
+                    for ( c = 0; c < countof( ptrs ); ++c )
+                    {
+                        printf( lines[c] );
+                        printf( "\n" );
 
+                    }
+                }
+
+                for ( c = 0; c < countof( ptrs ); ++c )
+                {
+                    ptrs[c] = lines[c];
+                }
+
+            }
+            uint32_t v[12];
+            int k;
+            for ( k = 0; k < 12; ++k )
+            {
+                v[k] = gppcu_data_rd_slow( thr, ofst + k );
+            }
+
+            ptrs[0] += sprintf( ptrs[0], "%-33s", spf( " ---- vertex %d ---- ", i ) );
+            ptrs[1] += sprintf( ptrs[1], "%-33s", spf( "rx: %f", reinterpret_float( v[1] ) ) );
+            ptrs[2] += sprintf( ptrs[2], "%-33s", spf( "ry: %f", reinterpret_float( v[2] ) ) );
+            ptrs[3] += sprintf( ptrs[3], "%-33s", spf( "rz: %f", reinterpret_float( v[3] ) ) );
+            ptrs[4] += sprintf( ptrs[4], "%-33s", spf( "xx: %d", v[4] ) );
+            ptrs[5] += sprintf( ptrs[5], "%-33s", spf( "yy: %d", v[5] ) );
+            ptrs[6] += sprintf( ptrs[6], "%-33s", spf( "mult_x: %f", reinterpret_float( v[8] ) ) );
+            ptrs[7] += sprintf( ptrs[7], "%-33s", spf( "mult_y: %f", reinterpret_float( v[9] ) ) );
+            ptrs[8] += sprintf( ptrs[8], "%-33s", spf( "mult_z: %f", reinterpret_float( v[10] ) ) );
+            ptrs[9] += sprintf( ptrs[9], "%-33s", spf( "mult_w: %f", reinterpret_float( v[11] ) ) );
+
+            if ( ++thr == 24 )
+            {
+                thr = 0;
+                ofst += 12;
+            }
+        }
+
+        // getchar();
+
+        // What it should be ...
+        struct vec3i smples[1024];
+        /**//*
+        for ( i = 0; i < mesh.num_vertices; ++i )
+        {
+            mfloat_t smplvtex[4];
+            vec3_assign( smplvtex, &mesh.vertices[i] );
+            smplvtex[3] = 1.f;
+            // printf( "Vector at %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+            vec4_multiply_mat4( smplvtex, smplvtex, result.world_view_proj );
+            // printf( "Translate %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+            // vec4_divide_f( smplvtex, smplvtex, smplvtex[3] );
+            // printf( "Division  %f, %f, %f, %f\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] );
+            // smplvtex[0] += 0.5f;
+            // smplvtex[1] += 0.5f;
+            // smplvtex[0] *= result.width;
+            // smplvtex[1] *= result.height; 
+            smplvtex[0] += result.width /2;
+            smplvtex[1] += result.height/2;
+        
+            // printf( "Result    %f, %f, %f, %f\n\n", smplvtex[0], smplvtex[1], smplvtex[2], smplvtex[3] ); 
+        
+            vec3i_assign_vec3( &smples[i], smplvtex ); 
+        } //*/
+
+        // app_render_on_screen( smples, mesh.indices, mesh.num_indices );
         app_render_on_screen( output, mesh.indices, mesh.num_indices );
     }
     

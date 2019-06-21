@@ -284,11 +284,11 @@ static inline void gppcu_fp_0(
     GPPCU_OPERATION opr,
     GPPCU_REGISTER regd,
     GPPCU_REGISTER rega )
-{ 
+{  
     gppcu_put_instr(
         pp,
         GPPCU_ASSEMBLE_INSTRUCTION_A( cond, opr, 0, regd, rega, 0, 0 )
-    );  
+    );
 }
 static inline void gppcu_ldl(
     swk_gppcu_t* const pp,

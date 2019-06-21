@@ -85,9 +85,8 @@ void mesh_subdevide( swk_mesh_t* const mesh )
         pn[6] = i6;
         pn[7] = i3;
         pn[8] = i5;
-
-        // Three polygons added
-        *pidx_head += 9;
+         
+        *pidx_head += 9;  
     }
 }
 
@@ -235,7 +234,7 @@ enum
     COFST_MAT4_WORLD_VIEW_PROJ = 16,
 
     // local memory offset ... task space 
-    OFST_VEC3_VTEX_INPUT = 0,
+    OFST_VEC3_VTEX_INPUT = 1,
     OFST_VECI4_VTEX_OUTPUT = OFST_VEC3_VTEX_INPUT + VEC3_SIZE, 
     OFST_TABLE = OFST_VECI4_VTEX_OUTPUT + VEC4_SIZE,
 
@@ -266,6 +265,7 @@ void app_upload_program( struct swk_gppcu* const pp )
     // ldl ry, [vec + 1]
     // ldl rz, [vec + 2]
     // ldci rw, <float_one>
+    gp_stl( REGPIVOT, REGPIVOT, 0 );
     gp_ldl( rx, REGPIVOT, OFST_VEC3_VTEX_INPUT + 0 );
     gp_ldl( ry, REGPIVOT, OFST_VEC3_VTEX_INPUT + 1 );
     gp_ldl( rz, REGPIVOT, OFST_VEC3_VTEX_INPUT + 2 );
@@ -294,19 +294,19 @@ void app_upload_program( struct swk_gppcu* const pp )
             gp_adi( loader, acc, 0 );
             gp_fadd( acc, loader, calc );
         }
-        gp_stl( acc, REGPIVOT, OFST_TABLE + col );
+        gp_stl( acc, REGPIVOT, OFST_TABLE + col ); 
     }
 
     // Add half size of screen and cast to int
     gp_ldl( rx, REGPIVOT, OFST_TABLE + 0 );
     gp_ldci( ra, COFST_WIDTH_HALF );
-    gp_fadd( rb, ra, rx );
+    gp_fadd( rb, ra, rx ); 
     gp_ftoi( ra, rb );
     gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 0 );
 
     gp_ldl( ry, REGPIVOT, OFST_TABLE + 1 );
     gp_ldci( ra, COFST_HEIGHT_HALF );
-    gp_fadd( rb, ra, ry );
+    gp_fadd( rb, ra, ry ); 
     gp_ftoi( ra, rb );
     gp_stl( ra, REGPIVOT, OFST_VECI4_VTEX_OUTPUT + 1 ); 
 
@@ -410,6 +410,9 @@ void app_render_on_screen( struct vec3i const* const points, uint16_t const* con
         rgb16_drawline( &scrdesc, points[idx2].x, points[idx2].y, points[idx0].x, points[idx0].y );
 
         // printf( "Drawing polygons ... %d, [%d, %d, %d]\n", ( idx_end - idx_head ) / 3, idx0, idx1, idx2 );
+        // printf( "idx 0: %d, %d\n", points[idx0].x, points[idx0].y );
+        // printf( "idx 1: %d, %d\n", points[idx1].x, points[idx1].y );
+        // printf( "idx 2: %d, %d\n", points[idx2].x, points[idx2].y );
         idx_head += 3;
     }
 

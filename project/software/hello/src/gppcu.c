@@ -102,6 +102,7 @@ void DEPRECATED__gppcu_init( swk_gppcu_t * const pp, int32_t num_threads, int32_
     pp->ro_numtask = 0;
     pp->ro_max_word_per_thread = MaxWordPerThread;
 }
+#define nop gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
 
 void gppcu_init( swk_gppcu_t* const pp, int32_t num_threads, int32_t Capacity, int32_t MaxWordPerThread, uint32_t CMDOUT, uint32_t DATOUT, uint32_t DATIN )
 {
@@ -256,8 +257,8 @@ void DEPRECATED__gppcu_program_autofeed_device( swk_gppcu_t const* const pp )
     while ( lphead < lpend ) {
         // @todo. verify hardware stall generator and remove this
         const swk_gppcu_instr_t instr = *lphead++; 
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-        gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+        nop;
+        nop;
         gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, instr );
     }
 }
@@ -290,6 +291,8 @@ char* instr_to_string( char* buff64, swk_gppcu_instr_t instr )
 
 const uint8_t REGPIVOT = REG_PER_THREAD - 1;
 
+#define nop2 gppcu_arith_s(pp, COND_ALWAYS, OPR_S_MOV, false, REGPIVOT, REGPIVOT, 0)
+
 void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
 {
     int pcnt;
@@ -304,17 +307,17 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
     gppcu_device_command( pp->MMAP_CMDOUT, LPM_NUMCYCLE, ( pp->mtaskcycle + PARALLEL_CNT - 1 ) / PARALLEL_CNT );
 
     // REGF will be automatically set as pivot register 
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+    nop;
+    nop;
     gppcu_push_instr(
         pp->MMAP_CMDOUT,
         pp->MMAP_DATOUT,
         GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_LDCI, 0, REGPIVOT, 0 )
-    );
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+    ); 
     for ( pcnt = 0; pcnt < PARALLEL_CNT; ++pcnt )
     {
+        nop;
+        nop;
         gppcu_push_instr(
             pp->MMAP_CMDOUT,
             pp->MMAP_DATOUT,
@@ -328,8 +331,8 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
             )
         );
     } 
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
-    gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+    nop;
+    nop;
 
     // Push program
     // Generate stall in software level ...
@@ -348,7 +351,7 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
         // don't repeat nop
         if ( opc == 0 )
         {
-            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+            nop;
             continue;
         }
 
@@ -369,21 +372,22 @@ void gppcu_program_autofeed_device_parallel( swk_gppcu_t const* const pp )
             }
             if ( instr_useregd( opc ) ) {
                 pinstr[0] += toadd << 17;
-            }
-            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, pinstr[0] );
+            } 
+            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, pinstr[0] );   
             char buff[124];
             instr_to_string( buff, pinstr[0] );
             // printf( "putting instr %s\n", buff );
         }
 
-        if ( OPR_0_ITOF <= opc && opc <= OPR_0_FSQRT )
-        {
-            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 ); 
-        }
         for ( pcnt = 0; pcnt < BUBBLES; ++pcnt )
         {
-            gppcu_push_instr( pp->MMAP_CMDOUT, pp->MMAP_DATOUT, 0 );
+            nop;
         } 
+        if ( OPR_0_ITOF <= opc && opc <= OPR_0_FSQRT )
+        {
+            // Repeat latest fp opr 
+            nop;
+        }
     }
 }
 
@@ -439,7 +443,7 @@ void gppcu_write(
         }
 
         ++idx_thread;
-        if ( idx_thread == 24 )
+        if ( idx_thread == pp->mnumthr )
         {
             idx_thread = 0;
             ++idx_cycle;
@@ -482,7 +486,7 @@ void gppcu_read(
         }
 
         ++idx_thread;
-        if ( idx_thread == 24 )
+        if ( idx_thread == pp->mnumthr )
         {
             idx_thread = 0;
             ++idx_cycle;
