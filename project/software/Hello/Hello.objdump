@@ -1583,7 +1583,7 @@ Disassembly of section .entry:
  8000010:	00420034 	movhi	at,2048
  8000014:	08409114 	ori	at,at,580
  8000018:	0800683a 	jmp	at
- 800001c:	00000000 	call	0 <__alt_mem_sdram-0x8000000>
+ 800001c:	00000000 	call	0 <__reset-0x8000000>
 
 Disassembly of section .exceptions:
 
@@ -45246,7 +45246,7 @@ Disassembly of section .text:
  8028bbc:	08028d20 	cmpeqi	zero,at,2612
  8028bc0:	080298c8 	cmpgei	zero,at,2659
  8028bc4:	080298c8 	cmpgei	zero,at,2659
- 8028bc8:	08028d40 	call	8028d4 <__alt_mem_sdram-0x77fd72c>
+ 8028bc8:	08028d40 	call	8028d4 <__reset-0x77fd72c>
  8028bcc:	080298c8 	cmpgei	zero,at,2659
  8028bd0:	080298c8 	cmpgei	zero,at,2659
  8028bd4:	080298c8 	cmpgei	zero,at,2659
@@ -54837,7 +54837,7 @@ Disassembly of section .text:
  8031f68:	08032678 	rdprs	zero,at,3225
  8031f6c:	08032108 	cmpgei	zero,at,3204
  8031f70:	08032b34 	orhi	zero,at,3244
- 8031f74:	080326c0 	call	80326c <__alt_mem_sdram-0x77fcd94>
+ 8031f74:	080326c0 	call	80326c <__reset-0x77fcd94>
  8031f78:	08032b34 	orhi	zero,at,3244
  8031f7c:	08032754 	ori	zero,at,3229
  8031f80:	08032b34 	orhi	zero,at,3244
@@ -59247,7 +59247,7 @@ Disassembly of section .text:
  80363a0:	08036d88 	cmpgei	zero,at,3510
  80363a4:	08036d88 	cmpgei	zero,at,3510
  80363a8:	0803650c 	andi	zero,at,3476
- 80363ac:	08036540 	call	803654 <__alt_mem_sdram-0x77fc9ac>
+ 80363ac:	08036540 	call	803654 <__reset-0x77fc9ac>
  80363b0:	08036d88 	cmpgei	zero,at,3510
  80363b4:	08036538 	rdprs	zero,at,3476
  80363b8:	0803654c 	andi	zero,at,3477
