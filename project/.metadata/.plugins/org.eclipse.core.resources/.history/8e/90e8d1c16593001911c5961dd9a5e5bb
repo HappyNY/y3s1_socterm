@@ -1,0 +1,211 @@
+#include <system.h>
+#include <stdio.h>
+#include "gppcu.h"
+#include <altera_avalon_pio_regs.h>
+#include <nios2.h>
+#include <string.h>
+#include "app.h"
+
+#define countof(v) (sizeof(v)/sizeof(*v))
+#define BOOL int
+#define TRUE 1
+#define FALSE 0
+
+void wait(int val)
+{
+    volatile int i;
+    for ( i = 0; i < val; ++i )
+	{
+		// nop;
+	}
+}
+
+BOOL display_stat()
+{
+    bool prun, pdone;
+    uint8_t szpertask, popmemend, popmemhead, ponumcycles, pocurcycleidx;
+    gppcu_stat( &prun, &pdone, &szpertask, &popmemend, &popmemhead, &ponumcycles, &pocurcycleidx );
+    printf(
+        "is running ? %d\n"
+        "is done ? %d\n"
+        "cur mem ofst: %d \n"
+        "mem: %d/%d \n"
+        "cycle: %d/%d \n",
+        prun, pdone, szpertask, popmemhead, popmemend, pocurcycleidx, ponumcycles
+    );
+    return pdone;
+}
+
+void mem_clr( int max_rot, int max_iter )
+{
+    for ( int i = 0; i < max_rot; ++i )
+    {
+        for ( int j = 0; j < max_iter; ++j )
+        {
+            gppcu_data_wr_slow( i, j, 0 );
+        }
+    }
+}
+
+void monitor( int num_thr, int begin, int num_mem )
+{ 
+    for ( int rot = 0; rot < num_thr; ++rot )
+    {
+        printf( "for thread %d\n", rot );
+        for ( int i = begin; i < begin + num_mem; ++i )
+        {
+            printf( "%9x", i );
+        }
+        printf( "\n" );
+        for ( int i = begin; i < begin + num_mem; ++i )
+        {
+            gppcu_data_rd_slow( rot, i );
+            printf( "%9x", gppcu_data_rd_slow( rot, i ) );
+        }
+        printf( "\n" );
+    }
+}
+
+int main()
+{
+    swk_meshinfo_t meshinfo;
+    vec3_zero( &meshinfo.location );
+    vec3_zero( &meshinfo.rotation );
+    vec3_one( &meshinfo.scale );
+
+    swk_cam_t cam;
+    cam.far = 250.f;
+    cam.near = 1.f;
+    vec3( &cam.location, 0.f, 0.f, 50.f );
+    vec3_zero( &cam.rotation );
+
+    swk_object_constant_t result;
+
+    app_calc_object_constant( &result, &cam, &meshinfo );
+    
+    mfloat_t smplvtex[VEC4_SIZE];
+    vec4( smplvtex, 4.f, 0.f, 0.f, 1.f );
+    vec4_multiply_mat4( smplvtex, smplvtex, result.worldmat );
+
+    return 0;
+}
+
+int gppcu_test()
+{ 
+	printf("Hello from Nios II! ... Launching ... \n");
+    
+
+    const int max_iter = 16;
+    const int max_rot = 4;
+
+    swk_gppcu gppcu;
+
+    gppcu.MMAP_CMDOUT = PIO_CMD_BASE;
+    gppcu.MMAP_DATIN = PIO_DATAIN_BASE;
+    gppcu.MMAP_DATOUT = PIO_DATAOUT_BASE;
+
+    gppcu_init( &gppcu, 24, 1024, 512 );
+    gppcu_init_task( &gppcu, 4, 240 );
+
+    gppcu_clear_instr( &gppcu );
+	//**//*
+    swk_gppcu_data_t initdat[240];
+    int i;
+    for ( i = 0; i < countof( initdat ); ++i ) 
+    {
+        initdat[i] = i;
+    }
+
+    
+    // reg01 should be 2.
+    // gppcu_ldci( &gppcu, COND_ALWAYS, REGF, 0 ); 
+    gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG0, REGPIVOT, 0 ); 
+    gppcu_arith_b( &gppcu, COND_ALWAYS, OPR_B_ADI, false, REG1, REG0, 1 );  
+    gppcu_stl( &gppcu, COND_ALWAYS, REG0, REG0, 1 );  
+    gppcu_stl( &gppcu, COND_ALWAYS, REG1, REG0, 2 );  
+    gppcu_ldci( &gppcu, COND_ALWAYS, REG4, 1 );
+    gppcu_stl( &gppcu, COND_ALWAYS, REG4, REG0, 0 );
+    int v = 0x1234;
+    gppcu_write_const( &gppcu, &v, 1, 1 );
+    // gppcu_arith_s( &gppcu, COND_ALWAYS, OPR_S_MOV, false, REG01, REG00, 0 );  
+    // gppcu_arith_a( &gppcu, COND_ALWAYS, OPR_A_ADC, false, REG01, REG01, REG01, 0 ); 
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG00, REG00, 1 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG01, REG00, 2 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG01, REG00, 1 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG03, REG00, 2 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG04, REG00, 3 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG05, REG00, 4 );
+    // gppcu_stl( &gppcu, COND_ALWAYS, REG06, REG00, 5 );
+
+    while ( true )
+    {
+        mem_clr( max_rot, max_iter );  
+        gppcu_write( &gppcu, initdat, 1, 0 ); 
+
+        // Program & run 
+        gppcu_program_autofeed_device_parallel( &gppcu ); 
+        gppcu_run_autofeed_device( &gppcu );
+
+        // Display dat
+        wait( 5000000 );
+        display_stat();
+
+        monitor( 4, 0, 21 );
+    }
+    /*/
+#define INSTR_BUNDLE \
+	    GPPCU_ASSEMBLE_INSTRUCTION_C(COND_ALWAYS, OPR_C_MVI, FALSE, 0x1, 0),                 \
+    GPPCU_ASSEMBLE_INSTRUCTION_C( COND_ALWAYS, OPR_C_MVI, FALSE, 0x2, 0 ),                   \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_LDL, FALSE, 0x0, 0, 0, 0x2 ),         \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x0, 1, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x0, 2, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x0, 3, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x0, 4, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x0, 5, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_LDL, FALSE, 0x2, 0b0, 5, 0x1 ),       \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_0_LSL, FALSE, 0x2, 0x2, 0, 0x2 ),     \
+        GPPCU_ASSEMBLE_INSTRUCTION_A( COND_ALWAYS, OPR_STL, FALSE, 0b0, 0x2, 6, 0x1 ),
+    uint32_t instrs[] = 
+    {
+        INSTR_BUNDLE
+    };
+    int cc = 0;
+    memcpy( gppcu.marr, instrs, sizeof( instrs ) );
+    gppcu.mnum = countof( instrs );
+	while(1)
+	{ 
+		++cc;
+		
+		printf("--- STEP %d ---\n", cc);
+		
+		for(int i = 0; i < max_rot; ++i)
+		{
+			for(int j = 0; j < max_iter; ++j)
+			{
+				gppcu_data_wr_slow(i, j, j == 0 ? (i << 16) + cc : 0);
+			}
+		}
+		
+        gppcu_program_autofeed_device( &gppcu );
+        while ( !display_stat() ); 
+        wait( 5000000 );
+        
+        for(int rot = 0; rot < max_rot; ++rot)
+        {
+            printf("for thread %d\n", rot);
+            for(int i=0; i<max_iter; ++i)
+            {
+                printf("%9x", i);
+            }
+            printf("\n");
+            for(int i=0; i<max_iter; ++i)
+            {
+                gppcu_data_rd_slow(rot, i);
+                printf("%9x", gppcu_data_rd_slow(rot, i));
+            }
+            printf("\n");
+        } 
+	} 
+    //*/
+	return 0;
+}

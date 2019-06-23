@@ -1,0 +1,77 @@
+#include "chout.hpp"
+
+skConsole::skConsole(size_t Width, size_t Height) :
+	mWidth(Width),
+	mHeight(Height),
+	mBuff(new uint16_t(Width * Height)), 
+	mCsrX(0),
+	mCsrY(0),
+	ForeColor(0xffff),
+	BackColor(0x0000)
+{
+	
+}
+
+skConsole::~skConsole()
+{
+	delete mBuff;
+}
+
+void skConsole::Write(char* str)
+{ 
+	while(*str != 0)
+	{
+		WriteChar(*str++);
+	}
+}
+
+void skConsole::SetCursor(int x, int y)
+{
+	
+}
+
+void skConsole::GetCursor(int& x, int& y) const
+{
+	
+}
+
+void skConsole::Print(volatile uint32_t* output_addr) const
+{
+	uint16_t const* lpHead = mBuff;
+	auto lpEnd = mBuff + mWidth * mHeight;
+	
+	while(lpHead < lpEnd)
+	{
+		output_addr[0] = (lpHead[1] << 16) | lpHead[0]; 
+		++output_addr;
+		lpHead += 2;
+	}
+}
+
+void skConsole::WriteChar(char p)
+{
+	uint8_t const* lpChar = &CGROM[p*16];
+	uint16_t* lpPivot = &mBuff[mCsrY * mWidth + mCsrX];
+	
+	for(int row = 0; row < 16; ++row)
+	{
+		uint8_t ch = *lpChar++;
+		uint16_t* lpHead = lpPivot;
+		lpPivot += mWidth;
+		for(int dot = 0; dot < 8; ++dot)
+		{
+			*lpHead++ = ch & 0x80 ? ForeColor : BackColor;
+			ch <<= 1;
+		}
+	}
+	
+	if(++mCsrX == mWidth)
+	{
+		mCsrX = 0;
+		mCsrY += 16;
+		if(mCsrY >= mHeight)
+		{
+			mCsrY = 0;
+		}
+	}	
+}
